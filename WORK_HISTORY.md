@@ -49,10 +49,13 @@
 - Updated admin login to use Supabase Auth (`supabase.auth.signInWithPassword`)
 - Updated admin product CRUD (create, update, delete) to write to Supabase DB
 - Fixed type issues: added `slug` field to Product type, fixed Review mapper
+- Added real Unsplash beauty images to Hero Banner (3 slides), Shop by Brand (6 brands), Categories (7 categories), Blog (4 posts)
+- Added fallback hardcoded data so site works without Supabase env vars configured
+- Deployed to Vercel at https://glowshop-beige.vercel.app
 
 ### 📝 Next Up
-- [ ] Deploy to Vercel (push current code to GitHub, Vercel auto-deploys)
+- [ ] Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` env vars in Vercel dashboard for live Supabase data
+- [ ] Buy domain (glowshop.com) and point to Vercel
 - [ ] Migrate image/video uploads from base64 to Supabase Storage
-- [ ] Buy domain (glowshop.com) or use vercel.app
 - [ ] Set up email marketing (MailerLite + Resend)
 - [ ] Add payment gateway (Stripe)
