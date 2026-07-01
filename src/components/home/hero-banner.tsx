@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -17,7 +18,7 @@ const slides = [
     href: "/products?category=Skincare",
     bg: "from-rose-100/80 via-pink-50/50 to-white dark:from-rose-950/30 dark:via-pink-950/20 dark:to-background",
     accent: "bg-gradient-to-r from-[#d4839a] to-[#e8a0b5]",
-    image: null,
+    image: "https://images.unsplash.com/photo-1570194065650-d99fb4b38e34?w=600&q=80",
   },
   {
     id: 2,
@@ -28,7 +29,7 @@ const slides = [
     href: "/products?category=Korean+Beauty",
     bg: "from-violet-100/80 via-purple-50/50 to-white dark:from-violet-950/30 dark:via-purple-950/20 dark:to-background",
     accent: "bg-gradient-to-r from-[#c9b8e0] to-[#a78bdb]",
-    image: null,
+    image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80",
   },
   {
     id: 3,
@@ -39,7 +40,7 @@ const slides = [
     href: "/products",
     bg: "from-amber-100/80 via-orange-50/50 to-white dark:from-amber-950/30 dark:via-orange-950/20 dark:to-background",
     accent: "bg-gradient-to-r from-[#f5d5c9] to-[#f0b89a]",
-    image: null,
+    image: "https://images.unsplash.com/photo-1599733589046-10c7f0f8a1e3?w=600&q=80",
   },
 ]
 
@@ -86,11 +87,17 @@ export function HeroBanner() {
                 </AnimatePresence>
               </div>
 
-              {/* Decorative element */}
+              {/* Image */}
               <div className="hidden lg:flex items-center justify-center relative">
                 <div className="absolute w-80 h-80 rounded-full bg-white/20 dark:bg-white/5 blur-3xl" />
-                <div className="relative w-64 h-64 rounded-full border-2 border-white/30 dark:border-white/10 flex items-center justify-center">
-                  <div className="text-7xl opacity-30 select-none">✦</div>
+                <div className="relative w-72 h-72 rounded-2xl overflow-hidden shadow-2xl">
+                  <Image
+                    src={slides[current].image}
+                    alt={slides[current].title}
+                    fill
+                    className="object-cover"
+                    sizes="288px"
+                  />
                 </div>
               </div>
             </div>

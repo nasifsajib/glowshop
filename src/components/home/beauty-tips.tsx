@@ -1,12 +1,22 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Calendar, ArrowRight } from "lucide-react"
-import { blogPosts } from "@/lib/blog"
+import { useApp } from "@/lib/store"
 import { Badge } from "@/components/ui/badge"
 
+const blogImages: Record<string, string> = {
+  b1: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80",
+  b2: "https://images.unsplash.com/photo-1570194065650-d99fb4b38e34?w=600&q=80",
+  b3: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&q=80",
+  b4: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=600&q=80",
+}
+
 export function BeautyTips() {
+  const { state } = useApp()
+  const blogPosts = state.blogPosts
   return (
     <section className="py-12 sm:py-16">
       <div className="container mx-auto px-4">
@@ -41,10 +51,14 @@ export function BeautyTips() {
                 href="#"
                 className="group block rounded-xl border bg-card overflow-hidden hover:shadow-lg transition-all duration-300"
               >
-                <div className="aspect-[16/9] bg-gradient-to-br from-secondary to-primary/10 flex items-center justify-center overflow-hidden">
-                  <div className="text-5xl opacity-20 group-hover:scale-110 transition-transform duration-500">
-                    ✦
-                  </div>
+                <div className="aspect-[16/9] overflow-hidden">
+                  <Image
+                    src={blogImages[post.id] || "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80"}
+                    alt={post.title}
+                    width={600}
+                    height={338}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
                 <div className="p-4 space-y-2">
                   <Badge variant="secondary" className="text-[10px]">

@@ -1,17 +1,18 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { useApp } from "@/lib/store"
 
-const iconMap: Record<string, string> = {
-  Skincare: "✨",
-  Makeup: "💄",
-  "Hair Care": "💇‍♀️",
-  "Body Care": "🧴",
-  Sunscreen: "☀️",
-  Fragrance: "🌸",
-  "Korean Beauty": "🇰🇷",
+const catImages: Record<string, string> = {
+  Skincare: "https://images.unsplash.com/photo-1570194065650-d99fb4b38e34?w=300&q=80",
+  Makeup: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&q=80",
+  "Hair Care": "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=300&q=80",
+  "Body Care": "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=300&q=80",
+  Sunscreen: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=300&q=80",
+  Fragrance: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=300&q=80",
+  "Korean Beauty": "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=300&q=80",
 }
 
 export function Categories() {
@@ -38,8 +39,14 @@ export function Categories() {
                 href={`/products?category=${encodeURIComponent(cat.name)}`}
                 className="flex flex-col items-center gap-3 min-w-[100px] group"
               >
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-secondary via-secondary to-primary/10 flex items-center justify-center text-2xl sm:text-3xl shadow-sm group-hover:shadow-lg group-hover:shadow-primary/20 group-hover:scale-105 transition-all duration-300">
-                  {iconMap[cat.name] || "✦"}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-sm group-hover:shadow-lg group-hover:shadow-primary/20 group-hover:scale-105 transition-all duration-300">
+                  <Image
+                    src={catImages[cat.name] || "https://images.unsplash.com/photo-1570194065650-d99fb4b38e34?w=300&q=80"}
+                    alt={cat.name}
+                    width={96}
+                    height={96}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-medium group-hover:text-primary transition-colors">
