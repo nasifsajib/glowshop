@@ -1,14 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { Eye, EyeOff, Lock, Mail, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { supabase } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
 
@@ -20,63 +18,36 @@ export default function AdminLoginPage() {
   const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = useCallback((e: React.FormEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setLoading(true)
+
     const trimmedEmail = email.trim()
     const trimmedPass = password.trim()
 
-    const fallbackUser = {
-      id: "admin-fallback",
-      name: "Admin",
-      email: "admin@glowshop.com",
-      avatar: "",
-      phone: "",
-      role: "admin" as const,
-    }
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: trimmedEmail,
-        password: trimmedPass,
-      })
-
-      if (!error && data?.user) {
-        const adminUser = {
-          id: data.user.id,
-          name: "Admin",
-          email: trimmedEmail,
-          avatar: data.user.user_metadata?.avatar_url || "",
-          phone: "",
-          role: "admin" as const,
-        }
-        dispatch({ type: "SET_USER", payload: adminUser })
-        try { localStorage.setItem("glowshop-admin", JSON.stringify(adminUser)) } catch {}
-        toast({ title: "Welcome Admin", variant: "success" })
-        router.push("/admin")
-        return
-      }
-    } catch {}
-
     if (trimmedEmail === "admin@glowshop.com" && trimmedPass === "admin123") {
+      const fallbackUser = {
+        id: "admin-fallback",
+        name: "Admin",
+        email: "admin@glowshop.com",
+        avatar: "",
+        phone: "",
+        role: "admin" as const,
+      }
       dispatch({ type: "SET_USER", payload: fallbackUser })
       try { localStorage.setItem("glowshop-admin", JSON.stringify(fallbackUser)) } catch {}
       toast({ title: "Welcome Admin", variant: "success" })
       router.push("/admin")
-      return
+    } else {
+      toast({ title: "Invalid credentials", description: "Use admin@glowshop.com / admin123", variant: "error" })
+      setLoading(false)
     }
-
-    toast({ title: "Invalid credentials", description: "Use admin@glowshop.com / admin123", variant: "error" })
-    setLoading(false)
-  }
+  }, [email, password, dispatch, router])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
-      >
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg mb-4">
             <Shield className="h-8 w-8 text-white" />
@@ -116,7 +87,7 @@ export default function AdminLoginPage() {
         <p className="text-xs text-muted-foreground text-center mt-4">
           Demo: admin@glowshop.com / admin123
         </p>
-      </motion.div>
+      </div>
     </div>
   )
 }

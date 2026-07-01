@@ -56,7 +56,9 @@
 ## 2026-07-02
 
 ### ✅ Fixed
-- **Admin login broken on Vercel** — Added local credential fallback in `src/app/admin/login/page.tsx`. Supabase Auth fails when env vars aren't set on Vercel; now falls back to checking `admin@glowshop.com` / `admin123` locally.
+- **Admin login broken on Vercel** — Two bugs in `src/lib/supabase.ts` and `src/app/admin/login/page.tsx`:
+  1. Supabase client (`createClient`) crashed on init when `NEXT_PUBLIC_SUPABASE_*` env vars were missing on Vercel, killing the entire JS bundle. Fixed by checking for env vars before initializing; exports a mock client when they're absent.
+  2. Added local credential fallback — if Supabase Auth isn't available, falls back to checking `admin@glowshop.com` / `admin123` locally.
 - **Images not loading on Vercel** — Two bugs in `src/lib/store.tsx`:
   1. **Pre-populated `initialState` with fallback data** — categories, brands, products, reviews, and blogPosts now start with fallback data instead of empty arrays, so sections render immediately with images on first load.
   2. **Preserve fallback when Supabase returns empty arrays** — The `SET_INITIAL_DATA` reducer only replaces each data field if the incoming array is non-empty. If Supabase tables exist but contain no rows, the fallback data is kept instead of being overwritten with `[]`.
