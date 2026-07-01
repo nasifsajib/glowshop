@@ -63,6 +63,12 @@
   1. **Pre-populated `initialState` with fallback data** — categories, brands, products, reviews, and blogPosts now start with fallback data instead of empty arrays, so sections render immediately with images on first load.
   2. **Preserve fallback when Supabase returns empty arrays** — The `SET_INITIAL_DATA` reducer only replaces each data field if the incoming array is non-empty. If Supabase tables exist but contain no rows, the fallback data is kept instead of being overwritten with `[]`.
 
+### 🔴 Still Broken
+- **Admin login — clicking Sign In does nothing on Vercel.** Even with the supabase guard and local fallback, the button has no effect. Suspected causes:
+  - `framer-motion` wrapping `<motion.div>` around the form causing React hydration to fail silently (event handlers not attached)
+  - Supabase Auth `signInWithPassword` with invalid anon key returning 401 and blocking the handler
+  - **2026-07-02 fix**: Removed framer-motion `motion.div` wrapper, removed Supabase auth call entirely, made `handleLogin` synchronous with `useCallback` — now only uses local credential check.
+
 ### 📝 Next Up
 - [ ] Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` env vars in Vercel dashboard for live Supabase data
 - [ ] Buy domain (glowshop.com) and point to Vercel

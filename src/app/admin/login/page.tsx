@@ -1,49 +1,30 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Eye, EyeOff, Lock, Mail, Shield } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Lock, Mail, Shield } from "lucide-react"
 import { useApp } from "@/lib/store"
-import { toast } from "@/hooks/use-toast"
 
 export default function AdminLoginPage() {
   const router = useRouter()
   const { dispatch } = useApp()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [show, setShow] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("admin@glowshop.com")
+  const [password, setPassword] = useState("admin123")
+  const [msg, setMsg] = useState("")
 
-  const handleLogin = useCallback((e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    e.stopPropagation()
-    setLoading(true)
+    setMsg("checking...")
 
-    const trimmedEmail = email.trim()
-    const trimmedPass = password.trim()
-
-    if (trimmedEmail === "admin@glowshop.com" && trimmedPass === "admin123") {
-      const fallbackUser = {
-        id: "admin-fallback",
-        name: "Admin",
-        email: "admin@glowshop.com",
-        avatar: "",
-        phone: "",
-        role: "admin" as const,
-      }
-      dispatch({ type: "SET_USER", payload: fallbackUser })
-      try { localStorage.setItem("glowshop-admin", JSON.stringify(fallbackUser)) } catch {}
-      toast({ title: "Welcome Admin", variant: "success" })
+    if (email.trim() === "admin@glowshop.com" && password.trim() === "admin123") {
+      dispatch({ type: "SET_USER", payload: { id: "admin-fallback", name: "Admin", email: "admin@glowshop.com", avatar: "", phone: "", role: "admin" } })
+      try { localStorage.setItem("glowshop-admin", JSON.stringify({ id: "admin-fallback", name: "Admin", email: "admin@glowshop.com", avatar: "", phone: "", role: "admin" })) } catch {}
       router.push("/admin")
     } else {
-      toast({ title: "Invalid credentials", description: "Use admin@glowshop.com / admin123", variant: "error" })
-      setLoading(false)
+      setMsg("wrong creds")
     }
-  }, [email, password, dispatch, router])
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
@@ -58,30 +39,28 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleLogin} className="p-6 rounded-2xl border bg-card space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <label htmlFor="email" className="text-sm font-medium">Email</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@glowshop.com" className="pl-9" required />
+              <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-9" />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <label htmlFor="password" className="text-sm font-medium">Password</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input id="password" type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="pl-9 pr-10" required />
-              <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+              <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-9" />
             </div>
           </div>
-          <Button type="submit" className="w-full h-12" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
-          </Button>
+          <button type="submit" className="w-full h-12 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium shadow-lg shadow-primary/20 hover:bg-primary/90">
+            Sign In
+          </button>
           <div className="text-center">
             <Link href="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               &larr; Back to store
             </Link>
           </div>
+          {msg && <p className="text-xs text-center text-muted-foreground">{msg}</p>}
         </form>
 
         <p className="text-xs text-muted-foreground text-center mt-4">
