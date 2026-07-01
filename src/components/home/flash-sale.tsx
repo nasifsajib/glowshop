@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { Clock, Zap } from "lucide-react"
 import { ProductGrid } from "@/components/product/product-grid"
 import { Button } from "@/components/ui/button"
-import { products } from "@/lib/data"
+import { useApp } from "@/lib/store"
 
 function CountdownTimer({ endDate }: { endDate: string }) {
   const [time, setTime] = useState({ hours: "--" as string | number, minutes: "--" as string | number, seconds: "--" as string | number })
@@ -37,7 +37,8 @@ function CountdownTimer({ endDate }: { endDate: string }) {
 }
 
 export function FlashSale() {
-  const flashProducts = products.filter((p) => p.isFlashSale).slice(0, 4)
+  const { state } = useApp()
+  const flashProducts = state.products.filter((p) => p.isFlashSale).slice(0, 4)
 
   return (
     <section className="py-12 sm:py-16 bg-gradient-to-r from-rose-50/50 via-amber-50/30 to-rose-50/50 dark:from-rose-950/10 dark:via-amber-950/5 dark:to-rose-950/10">

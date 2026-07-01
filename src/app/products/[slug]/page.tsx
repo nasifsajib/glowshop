@@ -18,8 +18,8 @@ import { ProductGrid } from "@/components/product/product-grid"
 import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
 import { formatPrice, cn } from "@/lib/utils"
-import { products, categories } from "@/lib/data"
-import { reviews, ratingBreakdown } from "@/lib/reviews"
+
+const ratingBreakdown = { 5: 65, 4: 22, 3: 8, 2: 3, 1: 2 }
 
 const benefitIcons: Record<string, React.ReactNode> = {
   "Brightens": <Sun className="h-4 w-4" />,
@@ -37,16 +37,16 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const [zoomed, setZoomed] = useState(false)
 
-  const product = products.find((p) => p.id === params.slug)
+  const product = state.products.find((p) => p.id === params.slug)
   const inWishlist = product ? state.wishlist.some((p) => p.id === product.id) : false
 
   const related = useMemo(
-    () => (product ? products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4) : []),
+    () => (product ? state.products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4) : []),
     [product]
   )
 
   const frequentlyBought = useMemo(
-    () => (product ? products.filter((p) => p.id !== product.id && p.price < product.price + 20).slice(0, 3) : []),
+    () => (product ? state.products.filter((p) => p.id !== product.id && p.price < product.price + 20).slice(0, 3) : []),
     [product]
   )
 
@@ -415,7 +415,7 @@ export default function ProductDetailPage() {
 
               {/* Reviews */}
               <div className="lg:col-span-2 space-y-4">
-                {reviews.map((review) => (
+                {state.reviews.map((review) => (
                   <div key={review.id} className="p-4 rounded-xl border">
                     <div className="flex items-center gap-1 mb-2">
                       {Array.from({ length: 5 }).map((_, i) => (
@@ -476,7 +476,7 @@ export default function ProductDetailPage() {
       {/* Recently Viewed */}
       <section className="mt-12 sm:mt-16 mb-8">
         <h2 className="text-xl sm:text-2xl font-bold font-heading mb-6">Recently Viewed</h2>
-        <ProductGrid products={products.slice(0, 4)} />
+        <ProductGrid products={state.products.slice(0, 4)} />
       </section>
     </div>
   )

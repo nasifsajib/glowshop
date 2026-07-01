@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { products, categories, brands } from "@/lib/data"
+import { useApp } from "@/lib/store"
 
 const skinTypes = ["All", "Normal", "Oily", "Dry", "Combination", "Sensitive"]
 const productTypes = ["All", "Serum", "Moisturizer", "Cleanser", "Toner", "Mask", "Oil", "Tint", "Lipstick", "Treatment", "Eye Cream", "Mist", "Body Butter", "Sunscreen"]
@@ -22,6 +22,8 @@ const sortOptions = [
 ]
 
 function ProductsContent() {
+  const { state } = useApp()
+  const { products, categories, brands } = state
   const searchParams = useSearchParams()
   const [filters, setFilters] = useState({
     category: searchParams.get("category") || "All",

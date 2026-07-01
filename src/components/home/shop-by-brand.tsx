@@ -2,9 +2,11 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { brands } from "@/lib/data"
+import { useApp } from "@/lib/store"
 
 export function ShopByBrand() {
+  const { state } = useApp()
+  const brands = state.brands
   return (
     <section className="py-12 sm:py-16">
       <div className="container mx-auto px-4">

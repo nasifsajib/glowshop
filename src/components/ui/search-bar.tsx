@@ -5,7 +5,6 @@ import { Search, X, Clock, TrendingUp } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { useApp } from "@/lib/store"
-import { products } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -16,7 +15,7 @@ export function SearchBar() {
   const { state, dispatch } = useApp()
 
   const results = query
-    ? products.filter(
+    ? state.products.filter(
         (p) =>
           p.name.toLowerCase().includes(query.toLowerCase()) ||
           p.brand.toLowerCase().includes(query.toLowerCase()) ||

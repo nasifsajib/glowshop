@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { categories } from "@/lib/data"
+import { useApp } from "@/lib/store"
 
 const iconMap: Record<string, string> = {
   Skincare: "✨",
@@ -15,6 +15,8 @@ const iconMap: Record<string, string> = {
 }
 
 export function Categories() {
+  const { state } = useApp()
+  const categories = state.categories
   return (
     <section className="py-12 sm:py-16">
       <div className="container mx-auto px-4">

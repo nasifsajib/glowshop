@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/ui/search-bar"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { useApp } from "@/lib/store"
-import { categories } from "@/lib/data"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
@@ -87,7 +86,7 @@ export function Header() {
                     className="absolute top-full left-0 mt-1 w-56 rounded-xl border bg-card shadow-xl overflow-hidden"
                   >
                     <div className="p-2">
-                      {categories.map((cat) => (
+                      {state.categories.map((cat) => (
                         <Link
                           key={cat.id}
                           href={`/products?category=${encodeURIComponent(cat.name)}`}
@@ -174,7 +173,7 @@ export function Header() {
                 ))}
                 <div className="pt-2 border-t">
                   <p className="px-3 py-1 text-xs font-medium text-muted-foreground">CATEGORIES</p>
-                  {categories.slice(0, 6).map((cat) => (
+                  {state.categories.slice(0, 6).map((cat) => (
                     <Link
                       key={cat.id}
                       href={`/products?category=${encodeURIComponent(cat.name)}`}

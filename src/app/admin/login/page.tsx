@@ -8,7 +8,8 @@ import { Eye, EyeOff, Lock, Mail, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useApp, ADMIN_CREDENTIALS } from "@/lib/store"
+import { supabase } from "@/lib/supabase"
+import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
 
 export default function AdminLoginPage() {
@@ -19,23 +20,35 @@ export default function AdminLoginPage() {
   const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     const trimmedEmail = email.trim()
     const trimmedPass = password.trim()
-    setTimeout(() => {
-      if (trimmedEmail === ADMIN_CREDENTIALS.email && trimmedPass === ADMIN_CREDENTIALS.password) {
-        const adminUser = { id: "admin1", name: "Admin", email: trimmedEmail, avatar: "", phone: "", role: "admin" as const }
-        dispatch({ type: "SET_USER", payload: adminUser })
-        try { localStorage.setItem("glowshop-admin", JSON.stringify(adminUser)) } catch {}
-        toast({ title: "Welcome Admin", variant: "success" })
-        router.push("/admin")
-      } else {
-        toast({ title: "Invalid credentials", description: "Use admin@glowshop.com / admin123", variant: "error" })
-        setLoading(false)
-      }
-    }, 800)
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: trimmedEmail,
+      password: trimmedPass,
+    })
+
+    if (error || !data.user) {
+      toast({ title: "Invalid credentials", description: "Use admin@glowshop.com / admin123", variant: "error" })
+      setLoading(false)
+      return
+    }
+
+    const adminUser = {
+      id: data.user.id,
+      name: "Admin",
+      email: trimmedEmail,
+      avatar: data.user.user_metadata?.avatar_url || "",
+      phone: "",
+      role: "admin" as const,
+    }
+    dispatch({ type: "SET_USER", payload: adminUser })
+    try { localStorage.setItem("glowshop-admin", JSON.stringify(adminUser)) } catch {}
+    toast({ title: "Welcome Admin", variant: "success" })
+    router.push("/admin")
   }
 
   return (

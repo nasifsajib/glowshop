@@ -2,10 +2,11 @@
 
 import { TrendingUp } from "lucide-react"
 import { ProductGrid } from "@/components/product/product-grid"
-import { products } from "@/lib/data"
+import { useApp } from "@/lib/store"
 
 export function TrendingProducts() {
-  const trending = products.filter((p) => p.isTrending).slice(0, 8)
+  const { state } = useApp()
+  const trending = state.products.filter((p) => p.isTrending).slice(0, 8)
 
   return (
     <section className="py-12 sm:py-16 bg-gradient-to-r from-violet-50/50 to-pink-50/50 dark:from-violet-950/10 dark:to-pink-950/10">

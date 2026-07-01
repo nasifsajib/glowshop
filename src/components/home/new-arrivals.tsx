@@ -3,10 +3,11 @@
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { ProductGrid } from "@/components/product/product-grid"
-import { products } from "@/lib/data"
+import { useApp } from "@/lib/store"
 
 export function NewArrivals() {
-  const newItems = products.filter((p) => p.isNew).slice(0, 4)
+  const { state } = useApp()
+  const newItems = state.products.filter((p) => p.isNew).slice(0, 4)
 
   return (
     <section className="py-12 sm:py-16">

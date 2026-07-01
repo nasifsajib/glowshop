@@ -2,10 +2,11 @@
 
 import { motion } from "framer-motion"
 import { ProductGrid } from "@/components/product/product-grid"
-import { products } from "@/lib/data"
+import { useApp } from "@/lib/store"
 
 export function FeaturedProducts() {
-  const featured = products.filter((p) => p.isBestSeller).slice(0, 8)
+  const { state } = useApp()
+  const featured = state.products.filter((p) => p.isBestSeller).slice(0, 8)
 
   return (
     <section className="py-12 sm:py-16">

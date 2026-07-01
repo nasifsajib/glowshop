@@ -1,8 +1,8 @@
 "use client"
 
 import { createContext, useContext, useReducer, useEffect, ReactNode } from "react"
-import { CartItem, Product, Address, User } from "@/types"
-import { products as initialProducts } from "@/lib/data"
+import { CartItem, Product, Address, User, Category, Brand, Review, BlogPost } from "@/types"
+import { fetchProducts, fetchCategories, fetchBrands, fetchReviews, fetchBlogPosts } from "@/lib/api"
 
 interface AppState {
   cart: CartItem[]
@@ -13,6 +13,11 @@ interface AppState {
   recentlyViewed: Product[]
   searchHistory: string[]
   products: Product[]
+  categories: Category[]
+  brands: Brand[]
+  reviews: Review[]
+  blogPosts: BlogPost[]
+  dataLoading: boolean
   adminOrders: any[]
 }
 
@@ -34,6 +39,7 @@ type Action =
   | { type: "ADMIN_UPDATE_PRODUCT"; payload: Product }
   | { type: "ADMIN_DELETE_PRODUCT"; payload: string }
   | { type: "ADMIN_SET_PRODUCTS"; payload: Product[] }
+  | { type: "SET_INITIAL_DATA"; payload: { products: Product[]; categories: Category[]; brands: Brand[]; reviews: Review[]; blogPosts: BlogPost[] } }
 
 const initialState: AppState = {
   cart: [],
@@ -54,7 +60,12 @@ const initialState: AppState = {
   isDarkMode: false,
   recentlyViewed: [],
   searchHistory: [],
-  products: initialProducts,
+  products: [],
+  categories: [],
+  brands: [],
+  reviews: [],
+  blogPosts: [],
+  dataLoading: true,
   adminOrders: [],
 }
 
@@ -108,7 +119,15 @@ function reducer(state: AppState, action: Action): AppState {
     case "TOGGLE_DARK_MODE":
       return { ...state, isDarkMode: !state.isDarkMode }
     case "HYDRATE":
-      return { ...state, ...action.payload }
+      return {
+        ...state,
+        cart: action.payload.cart || state.cart,
+        wishlist: action.payload.wishlist || state.wishlist,
+        addresses: action.payload.addresses || state.addresses,
+        recentlyViewed: action.payload.recentlyViewed || state.recentlyViewed,
+        searchHistory: action.payload.searchHistory || state.searchHistory,
+        isDarkMode: action.payload.isDarkMode ?? state.isDarkMode,
+      }
     case "ADD_RECENTLY_VIEWED": {
       const filtered = state.recentlyViewed.filter((p) => p.id !== action.payload.id)
       return { ...state, recentlyViewed: [action.payload, ...filtered].slice(0, 10) }
@@ -137,6 +156,8 @@ function reducer(state: AppState, action: Action): AppState {
       }
     case "ADMIN_SET_PRODUCTS":
       return { ...state, products: action.payload }
+    case "SET_INITIAL_DATA":
+      return { ...state, ...action.payload, dataLoading: false }
     default:
       return state
   }
@@ -173,6 +194,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
+    let mounted = true
+    async function loadData() {
+      try {
+        const [products, categories, brands, reviews, blogPosts] = await Promise.all([
+          fetchProducts(),
+          fetchCategories(),
+          fetchBrands(),
+          fetchReviews(),
+          fetchBlogPosts(),
+        ])
+        if (mounted) {
+          dispatch({ type: "SET_INITIAL_DATA", payload: { products, categories, brands, reviews, blogPosts } })
+        }
+      } catch (err) {
+        console.error("Failed to load initial data:", err)
+        if (mounted) dispatch({ type: "SET_INITIAL_DATA", payload: { products: [], categories: [], brands: [], reviews: [], blogPosts: [] } })
+      }
+    }
+    loadData()
+    return () => { mounted = false }
+  }, [])
+
+  useEffect(() => {
     localStorage.setItem("glowshop-state", JSON.stringify(state))
   }, [state])
 
@@ -189,7 +233,4 @@ export function useApp() {
   return context
 }
 
-export const ADMIN_CREDENTIALS = {
-  email: "admin@glowshop.com",
-  password: "admin123",
-}
+

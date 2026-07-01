@@ -38,13 +38,21 @@
 - Admin login whitespace trimming
 - Changed brand/category/productType from `<select>` to `<input>` with `<datalist>` for custom values
 
+### ✅ Done (continued)
+- Pushed entire project to GitHub: https://github.com/nasifsajib/glowshop
+
+### ✅ Done
+- Set up Supabase DB with tables, RLS policies, and seed data (categories, brands, 35 products, 8 reviews, 4 blog posts)
+- Created API layer (`src/lib/api.ts`) with functions: fetchProducts, fetchCategories, fetchBrands, fetchReviews, fetchBlogPosts, createProduct, updateProduct, deleteProduct
+- Updated store to load all data from Supabase on mount instead of hardcoded data.ts
+- Updated all 14 components/pages that imported from `data.ts` to use store state instead
+- Updated admin login to use Supabase Auth (`supabase.auth.signInWithPassword`)
+- Updated admin product CRUD (create, update, delete) to write to Supabase DB
+- Fixed type issues: added `slug` field to Product type, fixed Review mapper
+
 ### 📝 Next Up
-- [ ] Initialize git remote and push to GitHub
-- [ ] Deploy to Vercel
-- [ ] Set up Supabase (DB, auth, storage)
-- [ ] Connect admin login to real auth
-- [ ] Connect product CRUD to database
-- [ ] Replace base64 image/video upload with cloud storage
+- [ ] Deploy to Vercel (push current code to GitHub, Vercel auto-deploys)
+- [ ] Migrate image/video uploads from base64 to Supabase Storage
 - [ ] Buy domain (glowshop.com) or use vercel.app
 - [ ] Set up email marketing (MailerLite + Resend)
 - [ ] Add payment gateway (Stripe)

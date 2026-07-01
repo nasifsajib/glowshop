@@ -11,17 +11,17 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
-import { categories, brands } from "@/lib/data"
+import { updateProduct, deleteProduct } from "@/lib/api"
 
 const skinTypes = ["All", "Normal", "Oily", "Dry", "Combination", "Sensitive"]
 const productTypeOptions = ["Serum", "Moisturizer", "Cleanser", "Toner", "Mask", "Oil", "Tint", "Lipstick", "Treatment", "Eye Cream", "Mist", "Body Butter", "Sunscreen", "Essence", "Powder", "Spray", "Scrub", "Lotion", "Perfume", "Bronzer", "Mascara"]
-const brandOptions = brands.map((b) => b.name)
-const categoryOptions = categories.map((c) => c.name)
 
 export default function EditProductPage() {
   const router = useRouter()
   const params = useParams()
   const { state, dispatch } = useApp()
+  const brandOptions = state.brands.map((b) => b.name)
+  const categoryOptions = state.categories.map((c) => c.name)
   const [saving, setSaving] = useState(false)
   const [images, setImages] = useState<string[]>([])
   const [videos, setVideos] = useState<string[]>([])
@@ -83,7 +83,7 @@ export default function EditProductPage() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
 
@@ -103,17 +103,27 @@ export default function EditProductPage() {
       isFlashSale: form.isFlashSale, flashSaleEnds: form.isFlashSale ? form.flashSaleEnds || undefined : undefined,
     }
 
-    dispatch({ type: "ADMIN_UPDATE_PRODUCT", payload: updated })
-    toast({ title: "Product Updated", description: `${updated.name} has been saved.`, variant: "success" })
+    try {
+      await updateProduct(product.id, updated)
+      dispatch({ type: "ADMIN_UPDATE_PRODUCT", payload: updated })
+      toast({ title: "Product Updated", description: `${updated.name} has been saved.`, variant: "success" })
+      router.push("/admin/products")
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to update product.", variant: "error" })
+    }
     setSaving(false)
-    router.push("/admin/products")
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirm(`Delete "${product.name}"? This cannot be undone.`)) {
-      dispatch({ type: "ADMIN_DELETE_PRODUCT", payload: product.id })
-      toast({ title: "Deleted" })
-      router.push("/admin/products")
+      try {
+        await deleteProduct(product.id)
+        dispatch({ type: "ADMIN_DELETE_PRODUCT", payload: product.id })
+        toast({ title: "Deleted" })
+        router.push("/admin/products")
+      } catch {
+        toast({ title: "Error", description: "Failed to delete product.", variant: "error" })
+      }
     }
   }
 

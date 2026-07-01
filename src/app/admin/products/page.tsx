@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
 import { formatPrice } from "@/lib/utils"
+import { deleteProduct as deleteFromDB } from "@/lib/api"
 
 export default function AdminProductsPage() {
   const router = useRouter()
@@ -37,10 +38,15 @@ export default function AdminProductsPage() {
       return 0
     })
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (confirm(`Delete "${name}"? This cannot be undone.`)) {
-      dispatch({ type: "ADMIN_DELETE_PRODUCT", payload: id })
-      toast({ title: "Deleted", description: `${name} has been removed.` })
+      try {
+        await deleteFromDB(id)
+        dispatch({ type: "ADMIN_DELETE_PRODUCT", payload: id })
+        toast({ title: "Deleted", description: `${name} has been removed.` })
+      } catch {
+        toast({ title: "Error", description: "Failed to delete product.", variant: "error" })
+      }
     }
   }
 
