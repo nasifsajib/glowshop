@@ -53,6 +53,13 @@
 - Added fallback hardcoded data so site works without Supabase env vars configured
 - Deployed to Vercel at https://glowshop-beige.vercel.app
 
+## 2026-07-02
+
+### ✅ Fixed
+- **Images not loading on Vercel** — Two bugs in `src/lib/store.tsx`:
+  1. **Pre-populated `initialState` with fallback data** — categories, brands, products, reviews, and blogPosts now start with fallback data instead of empty arrays, so sections render immediately with images on first load.
+  2. **Preserve fallback when Supabase returns empty arrays** — The `SET_INITIAL_DATA` reducer only replaces each data field if the incoming array is non-empty. If Supabase tables exist but contain no rows, the fallback data is kept instead of being overwritten with `[]`.
+
 ### 📝 Next Up
 - [ ] Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` env vars in Vercel dashboard for live Supabase data
 - [ ] Buy domain (glowshop.com) and point to Vercel
