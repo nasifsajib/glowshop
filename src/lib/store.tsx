@@ -3,6 +3,9 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from "react"
 import { CartItem, Product, Address, User, Category, Brand, Review, BlogPost } from "@/types"
 import { fetchProducts, fetchCategories, fetchBrands, fetchReviews, fetchBlogPosts } from "@/lib/api"
+import { products as fallbackProducts, categories as fallbackCats, brands as fallbackBrands } from "@/lib/data"
+import { reviews as fallbackReviews } from "@/lib/reviews"
+import { blogPosts as fallbackBlog } from "@/lib/blog"
 
 interface AppState {
   cart: CartItem[]
@@ -208,8 +211,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
           dispatch({ type: "SET_INITIAL_DATA", payload: { products, categories, brands, reviews, blogPosts } })
         }
       } catch (err) {
-        console.error("Failed to load initial data:", err)
-        if (mounted) dispatch({ type: "SET_INITIAL_DATA", payload: { products: [], categories: [], brands: [], reviews: [], blogPosts: [] } })
+        console.error("Failed to load initial data, using fallback:", err)
+        if (mounted) {
+          dispatch({ type: "SET_INITIAL_DATA", payload: {
+            products: fallbackProducts,
+            categories: fallbackCats,
+            brands: fallbackBrands,
+            reviews: fallbackReviews,
+            blogPosts: fallbackBlog,
+          }})
+        }
       }
     }
     loadData()
