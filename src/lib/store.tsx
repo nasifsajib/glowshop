@@ -160,7 +160,16 @@ function reducer(state: AppState, action: Action): AppState {
     case "ADMIN_SET_PRODUCTS":
       return { ...state, products: action.payload }
     case "SET_INITIAL_DATA":
-      return { ...state, ...action.payload, dataLoading: false }
+      return {
+        ...state,
+        ...action.payload,
+        products: action.payload.products.length > 0 ? action.payload.products : state.products,
+        categories: action.payload.categories.length > 0 ? action.payload.categories : state.categories,
+        brands: action.payload.brands.length > 0 ? action.payload.brands : state.brands,
+        reviews: action.payload.reviews.length > 0 ? action.payload.reviews : state.reviews,
+        blogPosts: action.payload.blogPosts.length > 0 ? action.payload.blogPosts : state.blogPosts,
+        dataLoading: false,
+      }
     default:
       return state
   }
