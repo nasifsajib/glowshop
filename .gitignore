@@ -44,3 +44,6 @@ dev-*.txt
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# debug chunks
+*-chunk.js
