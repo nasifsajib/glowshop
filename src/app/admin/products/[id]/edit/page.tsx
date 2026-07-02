@@ -39,7 +39,7 @@ export default function EditProductPage() {
   })
 
   useEffect(() => {
-    if (!state.user || state.user.role !== "admin") { router.push("/admin/login"); return }
+    if (!state.user || state.user.role !== "admin") { router.push("/login"); return }
     const product = state.products.find((p) => p.id === params.id)
     if (!product) { router.push("/admin/products"); return }
     setForm({

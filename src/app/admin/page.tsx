@@ -22,7 +22,7 @@ export default function AdminDashboard() {
   const { state, dispatch } = useApp()
 
   useEffect(() => {
-    if (!state.user || state.user.role !== "admin") router.push("/admin/login")
+    if (!state.user || state.user.role !== "admin") router.push("/login")
   }, [state.user, router])
 
   if (!state.user || state.user.role !== "admin") return null
@@ -38,7 +38,7 @@ export default function AdminDashboard() {
             <Button asChild variant="outline" size="sm">
               <Link href="/"><ShoppingBag className="h-3.5 w-3.5" /> Store</Link>
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => { dispatch({ type: "SET_USER", payload: null }); try { localStorage.removeItem("glowshop-admin") } catch {}; router.push("/admin/login") }}>
+            <Button variant="ghost" size="sm" onClick={() => { dispatch({ type: "SET_USER", payload: null }); try { localStorage.removeItem("glowshop-admin") } catch {}; router.push("/login") }}>
               <LogOut className="h-4 w-4" /> Logout
             </Button>
           </div>

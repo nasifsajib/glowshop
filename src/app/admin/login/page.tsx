@@ -7,6 +7,7 @@ import { Eye, EyeOff, Lock, Mail, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { supabase } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
 
@@ -33,39 +34,28 @@ export default function AdminLoginPage() {
       role: "admin" as const,
     }
 
-    const trySupabase = async () => {
-      try {
-        const { supabase } = await import("@/lib/supabase")
-        const { data, error } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password: trimmedPass })
-        if (!error && data?.user) {
-          const u = { id: data.user.id, name: "Admin", email: trimmedEmail, avatar: data.user.user_metadata?.avatar_url || "", phone: "", role: "admin" as const }
-          dispatch({ type: "SET_USER", payload: u })
-          try { localStorage.setItem("glowshop-admin", JSON.stringify(u)) } catch {}
-          toast({ title: "Welcome Admin", variant: "success" })
-          router.push("/admin")
-          return true
-        }
-      } catch {}
-      return false
-    }
-
-    const tryLocal = () => {
-      if (trimmedEmail === "admin@glowshop.com" && trimmedPass === "admin123") {
-        dispatch({ type: "SET_USER", payload: fallbackUser })
-        try { localStorage.setItem("glowshop-admin", JSON.stringify(fallbackUser)) } catch {}
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password: trimmedPass })
+      if (!error && data?.user) {
+        const u = { id: data.user.id, name: "Admin", email: trimmedEmail, avatar: data.user.user_metadata?.avatar_url || "", phone: "", role: "admin" as const }
+        dispatch({ type: "SET_USER", payload: u })
+        try { localStorage.setItem("glowshop-admin", JSON.stringify(u)) } catch {}
         toast({ title: "Welcome Admin", variant: "success" })
         router.push("/admin")
-        return true
+        return
       }
-      return false
+    } catch {}
+
+    if (trimmedEmail === "admin@glowshop.com" && trimmedPass === "admin123") {
+      dispatch({ type: "SET_USER", payload: fallbackUser })
+      try { localStorage.setItem("glowshop-admin", JSON.stringify(fallbackUser)) } catch {}
+      toast({ title: "Welcome Admin", variant: "success" })
+      router.push("/admin")
+      return
     }
 
-    const ok = await trySupabase()
-    if (!ok && tryLocal()) return
-    if (!ok) {
-      toast({ title: "Invalid credentials", description: "Use admin@glowshop.com / admin123", variant: "error" })
-      setLoading(false)
-    }
+    toast({ title: "Invalid credentials", description: "Use admin@glowshop.com / admin123", variant: "error" })
+    setLoading(false)
   }
 
   return (

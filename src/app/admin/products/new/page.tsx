@@ -39,7 +39,7 @@ export default function AddProductPage() {
   })
 
   useEffect(() => {
-    if (!state.user || state.user.role !== "admin") router.push("/admin/login")
+    if (!state.user || state.user.role !== "admin") router.push("/login")
   }, [state.user, router])
 
   if (!state.user || state.user.role !== "admin") return null

@@ -20,7 +20,7 @@ export default function AdminProductsPage() {
   const [sort, setSort] = useState<string>("newest")
 
   useEffect(() => {
-    if (!state.user || state.user.role !== "admin") router.push("/admin/login")
+    if (!state.user || state.user.role !== "admin") router.push("/login")
   }, [state.user, router])
 
   if (!state.user || state.user.role !== "admin") return null
