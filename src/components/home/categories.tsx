@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { useApp } from "@/lib/store"
 
 const catImages: Record<string, string> = {
-  Skincare: "/images/skincare.jpg",
+  Skincare: "/images/sgc.webp",
   Makeup: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&q=80",
   "Hair Care": "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=300&q=80",
   "Body Care": "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=300&q=80",
