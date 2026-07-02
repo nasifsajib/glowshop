@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, Mail, Lock, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,8 +12,9 @@ import { supabase } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { dispatch } = useApp()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -21,6 +22,8 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const redirectTo = searchParams.get("redirect") || "/account"
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,7 +56,7 @@ export default function RegisterPage() {
       dispatch({ type: "SET_USER", payload: user })
       try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
       toast({ title: "Account created!", description: "You're now signed in.", variant: "success" })
-      router.push("/account")
+      router.push(redirectTo)
     }
   }
 
@@ -114,7 +117,7 @@ export default function RegisterPage() {
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-primary font-medium hover:underline">
+              <Link href={redirectTo !== "/account" ? `/login?redirect=${encodeURIComponent(redirectTo)}` : "/login"} className="text-primary font-medium hover:underline">
                 Sign in
               </Link>
             </p>
@@ -122,5 +125,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-20 text-center"><div className="animate-pulse space-y-4"><div className="h-8 bg-muted rounded w-48 mx-auto" /><div className="h-4 bg-muted rounded w-64 mx-auto" /></div></div>}>
+      <RegisterForm />
+    </Suspense>
   )
 }

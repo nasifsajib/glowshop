@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,13 +12,16 @@ import { supabase } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { dispatch } = useApp()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const redirectTo = searchParams.get("redirect") || "/account"
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,7 +41,7 @@ export default function LoginPage() {
         dispatch({ type: "SET_USER", payload: user })
         try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
         toast({ title: isAdmin ? "Welcome Admin" : "Welcome back!", variant: "success" })
-        router.push(isAdmin ? "/admin" : "/account")
+        router.push(isAdmin ? "/admin" : redirectTo)
         return
       }
     } catch {}
@@ -103,7 +106,7 @@ export default function LoginPage() {
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-primary font-medium hover:underline">
+              <Link href={redirectTo !== "/account" ? `/register?redirect=${encodeURIComponent(redirectTo)}` : "/register"} className="text-primary font-medium hover:underline">
                 Sign up
               </Link>
             </p>
@@ -111,5 +114,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-20 text-center"><div className="animate-pulse space-y-4"><div className="h-8 bg-muted rounded w-48 mx-auto" /><div className="h-4 bg-muted rounded w-64 mx-auto" /></div></div>}>
+      <LoginForm />
+    </Suspense>
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
@@ -32,6 +32,7 @@ const benefitIcons: Record<string, React.ReactNode> = {
 
 export default function ProductDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const { state, dispatch } = useApp()
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
@@ -79,6 +80,20 @@ export default function ProductDetailPage() {
       title: inWishlist ? "Removed from Wishlist" : "Added to Wishlist",
       variant: inWishlist ? "default" : "success",
     })
+  }
+
+  const handleBuyNow = () => {
+    if (!state.user) {
+      for (let i = 0; i < quantity; i++) {
+        dispatch({ type: "ADD_TO_CART", payload: product })
+      }
+      router.push("/login?redirect=/checkout")
+      return
+    }
+    for (let i = 0; i < quantity; i++) {
+      dispatch({ type: "ADD_TO_CART", payload: product })
+    }
+    router.push("/checkout")
   }
 
   const totalRating = Object.entries(ratingBreakdown).reduce(
@@ -291,7 +306,7 @@ export default function ProductDetailPage() {
             </Button>
           </div>
 
-          <Button className="w-full h-12" variant="outline">
+          <Button className="w-full h-12" variant="outline" onClick={handleBuyNow}>
             Buy Now
           </Button>
 

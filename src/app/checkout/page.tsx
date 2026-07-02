@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, MapPin, Phone, User, Package, CreditCard, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -23,10 +23,23 @@ export default function CheckoutPage() {
   const [state_, setState] = useState("")
   const [zip, setZip] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+
+  useEffect(() => {
+    if (!state.user) {
+      router.replace("/login?redirect=/checkout")
+    } else {
+      setCheckingAuth(false)
+    }
+  }, [state.user, router])
 
   const subtotal = state.cart.reduce((total, item) => total + item.product.price * item.quantity, 0)
   const shipping = subtotal >= 50 ? 0 : 5.99
   const total = subtotal + shipping
+
+  if (checkingAuth) {
+    return <div className="container mx-auto px-4 py-20 text-center"><div className="animate-pulse space-y-4"><div className="h-8 bg-muted rounded w-48 mx-auto" /><div className="h-4 bg-muted rounded w-64 mx-auto" /></div></div>
+  }
 
   if (state.cart.length === 0) {
     return (
