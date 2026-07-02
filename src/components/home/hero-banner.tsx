@@ -29,7 +29,7 @@ const slides = [
     href: "/products?category=Korean+Beauty",
     bg: "from-violet-100/80 via-purple-50/50 to-white dark:from-violet-950/30 dark:via-purple-950/20 dark:to-background",
     accent: "bg-gradient-to-r from-[#c9b8e0] to-[#a78bdb]",
-    image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80",
+    image: "/images/kbeauty.jpg",
   },
   {
     id: 3,
