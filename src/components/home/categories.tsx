@@ -52,7 +52,7 @@ export function Categories() {
                   <p className="text-sm font-medium group-hover:text-primary transition-colors">
                     {cat.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">{cat.itemCount} items</p>
+                  <p className="text-xs text-muted-foreground">{state.products.filter(p => p.category === cat.name).length} items</p>
                 </div>
               </Link>
             </motion.div>
