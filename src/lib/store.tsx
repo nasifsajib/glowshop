@@ -6,6 +6,7 @@ import { fetchProducts, fetchCategories, fetchBrands, fetchReviews, fetchBlogPos
 import { products as fallbackProducts, categories as fallbackCats, brands as fallbackBrands } from "@/lib/data"
 import { reviews as fallbackReviews } from "@/lib/reviews"
 import { blogPosts as fallbackBlog } from "@/lib/blog"
+import { supabase } from "@/lib/supabase"
 
 interface AppState {
   cart: CartItem[]
@@ -195,23 +196,58 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("glowshop-state")
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        const adminSaved = localStorage.getItem("glowshop-admin")
-        let user = null
-        if (adminSaved) {
-          try { user = JSON.parse(adminSaved) } catch {}
+    async function restoreSession() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          const saved = localStorage.getItem("glowshop-admin")
+          if (saved) {
+            try { dispatch({ type: "SET_USER", payload: JSON.parse(saved) }); return } catch {}
+          }
+          const user: User = { id: session.user.id, name: session.user.email || "User", email: session.user.email || "", avatar: "", phone: "", role: "user" }
+          dispatch({ type: "SET_USER", payload: user })
+          try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
+          return
         }
-        dispatch({ type: "HYDRATE", payload: { ...parsed, user: user || null } })
-      } else {
-        const adminSaved = localStorage.getItem("glowshop-admin")
-        if (adminSaved) {
-          try { dispatch({ type: "SET_USER", payload: JSON.parse(adminSaved) }) } catch {}
+      } catch {}
+      try {
+        const saved = localStorage.getItem("glowshop-state")
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          const adminSaved = localStorage.getItem("glowshop-admin")
+          let user = null
+          if (adminSaved) {
+            try { user = JSON.parse(adminSaved) } catch {}
+          }
+          dispatch({ type: "HYDRATE", payload: { ...parsed, user: user || parsed.user || null } })
+        } else {
+          const adminSaved = localStorage.getItem("glowshop-admin")
+          if (adminSaved) {
+            try { dispatch({ type: "SET_USER", payload: JSON.parse(adminSaved) }) } catch {}
+          }
+        }
+      } catch { /* ignore */ }
+    }
+    restoreSession()
+  }, [])
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        dispatch({ type: "SET_USER", payload: null })
+        try { localStorage.removeItem("glowshop-admin") } catch {}
+      } else if (event === "SIGNED_IN" && session?.user) {
+        const saved = localStorage.getItem("glowshop-admin")
+        if (saved) {
+          try { dispatch({ type: "SET_USER", payload: JSON.parse(saved) }) } catch {}
+        } else {
+          const user: User = { id: session.user.id, name: session.user.email || "User", email: session.user.email || "", avatar: "", phone: "", role: "user" }
+          dispatch({ type: "SET_USER", payload: user })
+          try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
         }
       }
-    } catch { /* ignore */ }
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   useEffect(() => {
