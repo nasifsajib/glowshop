@@ -24,6 +24,16 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (password.length < 6) {
+      toast({ title: "Password too short", description: "Must be at least 6 characters.", variant: "error" })
+      return
+    }
+    if (!email.includes("@")) {
+      toast({ title: "Invalid email", description: "Enter a valid email address.", variant: "error" })
+      return
+    }
+
     setLoading(true)
 
     const { data, error } = await supabase.auth.signUp({
@@ -42,7 +52,7 @@ export default function RegisterPage() {
       const user = { id: data.user.id, name: name.trim() || "User", email: email.trim(), avatar: "", phone: phone.trim(), role: "user" as const }
       dispatch({ type: "SET_USER", payload: user })
       try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
-      toast({ title: "Account created!", description: "Check your email to confirm.", variant: "success" })
+      toast({ title: "Account created!", description: "You're now signed in.", variant: "success" })
       router.push("/")
     }
   }
