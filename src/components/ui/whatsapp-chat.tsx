@@ -10,7 +10,7 @@ export function WhatsAppChat() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 transition-all duration-300 active:scale-90"
+      className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 transition-all duration-300 active:scale-90"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       animate={{ y: [0, -5, 0] }}
