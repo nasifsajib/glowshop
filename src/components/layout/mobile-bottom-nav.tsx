@@ -11,7 +11,7 @@ const items = [
   { href: "/products", label: "Shop", icon: Search },
   { href: "/wishlist", label: "Wishlist", icon: Heart, count: true },
   { href: "/cart", label: "Cart", icon: ShoppingBag, count: true },
-  { href: "/login", label: "Account", icon: User },
+  { href: "", label: "Account", icon: User, account: true },
 ]
 
 export function MobileBottomNav() {
@@ -29,13 +29,14 @@ export function MobileBottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur-lg lg:hidden">
       <div className="flex items-center justify-around h-16 px-2">
         {items.map((item) => {
+          const href = item.account ? (state.user ? "/account" : "/login") : item.href
           const Icon = item.icon
-          const isActive = pathname === item.href
+          const isActive = pathname === (item.account ? (state.user ? "/account" : "/login") : item.href)
           const count = getCount(item)
           return (
             <Link
-              key={item.href}
-              href={item.href}
+              key={item.label}
+              href={href}
               className={cn(
                 "relative flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"

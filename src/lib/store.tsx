@@ -211,16 +211,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       } catch {}
       try {
-        const saved = localStorage.getItem("glowshop-state")
-        if (saved) {
-          const parsed = JSON.parse(saved)
-          const adminSaved = localStorage.getItem("glowshop-admin")
-          let user = null
-          if (adminSaved) {
-            try { user = JSON.parse(adminSaved) } catch {}
-          }
-          dispatch({ type: "HYDRATE", payload: { ...parsed, user: user || parsed.user || null } })
-        } else {
+          const saved = localStorage.getItem("glowshop-state")
+          if (saved) {
+            const parsed = JSON.parse(saved)
+            const adminSaved = localStorage.getItem("glowshop-admin")
+            let user = null
+            if (adminSaved) {
+              try { user = JSON.parse(adminSaved) } catch {}
+            }
+            dispatch({ type: "HYDRATE", payload: { ...parsed } })
+            if (user) dispatch({ type: "SET_USER", payload: user })
+          } else {
           const adminSaved = localStorage.getItem("glowshop-admin")
           if (adminSaved) {
             try { dispatch({ type: "SET_USER", payload: JSON.parse(adminSaved) }) } catch {}

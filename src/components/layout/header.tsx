@@ -136,7 +136,7 @@ export function Header() {
               )}
             </Link>
             <Link
-              href="/login"
+              href={state.user ? "/account" : "/login"}
               className="p-2 rounded-full hover:bg-muted transition-colors hidden sm:block"
               aria-label="Account"
             >
@@ -195,7 +195,7 @@ export function Header() {
                   <Heart className="h-4 w-4" /> Wishlist ({state.wishlist.length})
                 </Link>
                 <Link
-                  href="/login"
+                  href={state.user ? "/account" : "/login"}
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors"
                 >
