@@ -18,7 +18,7 @@ const slides = [
     href: "/products?category=Skincare",
     bg: "from-rose-100/80 via-pink-50/50 to-white dark:from-rose-950/30 dark:via-pink-950/20 dark:to-background",
     accent: "bg-gradient-to-r from-[#d4839a] to-[#e8a0b5]",
-    image: "https://images.unsplash.com/photo-1570194065650-d99fb4b38e34?w=600&q=80",
+    image: "/images/sgc.webp",
   },
   {
     id: 2,
@@ -30,17 +30,6 @@ const slides = [
     bg: "from-violet-100/80 via-purple-50/50 to-white dark:from-violet-950/30 dark:via-purple-950/20 dark:to-background",
     accent: "bg-gradient-to-r from-[#c9b8e0] to-[#a78bdb]",
     image: "/images/kbeauty.jpg",
-  },
-  {
-    id: 3,
-    title: "Flash Sale: Up to 30% Off",
-    subtitle: "Limited time only",
-    description: "Grab your favorites before they're gone. Best-selling serums, moisturizers, and makeup at unbeatable prices.",
-    cta: "Shop Flash Sale",
-    href: "/products",
-    bg: "from-amber-100/80 via-orange-50/50 to-white dark:from-amber-950/30 dark:via-orange-950/20 dark:to-background",
-    accent: "bg-gradient-to-r from-[#f5d5c9] to-[#f0b89a]",
-    image: "https://images.unsplash.com/photo-1599733589046-10c7f0f8a1e3?w=600&q=80",
   },
 ]
 
