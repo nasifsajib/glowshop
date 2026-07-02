@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, Suspense } from "react"
+import { useState, useMemo, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { SlidersHorizontal, Grid3X3, List, X } from "lucide-react"
@@ -33,6 +33,13 @@ function ProductsContent() {
     priceRange: "all",
     rating: 0,
   })
+  useEffect(() => {
+    const cat = searchParams.get("category")
+    if (cat && cat !== filters.category) {
+      setFilters((prev) => ({ ...prev, category: cat }))
+    }
+  }, [searchParams])
+
   const [sort, setSort] = useState("newest")
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const [view, setView] = useState<"grid" | "list">("grid")
