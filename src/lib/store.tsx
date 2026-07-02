@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useReducer, useEffect, ReactNode } from "react"
-import { CartItem, Product, Address, User, Category, Brand, Review, BlogPost } from "@/types"
+import { CartItem, Product, Address, User, Category, Brand, Review, BlogPost, Order } from "@/types"
 import { fetchProducts, fetchCategories, fetchBrands, fetchReviews, fetchBlogPosts } from "@/lib/api"
 import { products as fallbackProducts, categories as fallbackCats, brands as fallbackBrands } from "@/lib/data"
 import { reviews as fallbackReviews } from "@/lib/reviews"
@@ -22,6 +22,7 @@ interface AppState {
   blogPosts: BlogPost[]
   dataLoading: boolean
   adminOrders: any[]
+  orders: Order[]
 }
 
 type Action =
@@ -43,6 +44,8 @@ type Action =
   | { type: "ADMIN_DELETE_PRODUCT"; payload: string }
   | { type: "ADMIN_SET_PRODUCTS"; payload: Product[] }
   | { type: "SET_INITIAL_DATA"; payload: { products: Product[]; categories: Category[]; brands: Brand[]; reviews: Review[]; blogPosts: BlogPost[] } }
+  | { type: "ADD_ORDER"; payload: Order }
+  | { type: "SET_ORDERS"; payload: Order[] }
 
 const initialState: AppState = {
   cart: [],
@@ -70,6 +73,7 @@ const initialState: AppState = {
   blogPosts: fallbackBlog,
   dataLoading: true,
   adminOrders: [],
+  orders: [],
 }
 
 function reducer(state: AppState, action: Action): AppState {
@@ -129,6 +133,7 @@ function reducer(state: AppState, action: Action): AppState {
         addresses: action.payload.addresses || state.addresses,
         recentlyViewed: action.payload.recentlyViewed || state.recentlyViewed,
         searchHistory: action.payload.searchHistory || state.searchHistory,
+        orders: action.payload.orders || state.orders,
         isDarkMode: action.payload.isDarkMode ?? state.isDarkMode,
       }
     case "ADD_RECENTLY_VIEWED": {
@@ -141,6 +146,10 @@ function reducer(state: AppState, action: Action): AppState {
     }
     case "CLEAR_CART":
       return { ...state, cart: [] }
+    case "ADD_ORDER":
+      return { ...state, orders: [action.payload, ...state.orders] }
+    case "SET_ORDERS":
+      return { ...state, orders: action.payload }
     case "ADMIN_ADD_PRODUCT":
       return { ...state, products: [action.payload, ...state.products] }
     case "ADMIN_UPDATE_PRODUCT":

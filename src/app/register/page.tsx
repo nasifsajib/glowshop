@@ -53,7 +53,7 @@ export default function RegisterPage() {
       dispatch({ type: "SET_USER", payload: user })
       try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
       toast({ title: "Account created!", description: "You're now signed in.", variant: "success" })
-      router.push("/")
+      router.push("/account")
     }
   }
 

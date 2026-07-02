@@ -159,8 +159,8 @@ export default function CartPage() {
               <span>{formatPrice(total)}</span>
             </div>
 
-            <Button className="w-full h-12" variant="premium">
-              Proceed to Checkout
+            <Button asChild className="w-full h-12" variant="premium">
+              <Link href="/checkout">Proceed to Checkout</Link>
             </Button>
 
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">

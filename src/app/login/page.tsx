@@ -38,7 +38,7 @@ export default function LoginPage() {
         dispatch({ type: "SET_USER", payload: user })
         try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
         toast({ title: isAdmin ? "Welcome Admin" : "Welcome back!", variant: "success" })
-        router.push(isAdmin ? "/admin" : "/")
+        router.push(isAdmin ? "/admin" : "/account")
         return
       }
     } catch {}

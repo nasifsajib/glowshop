@@ -10,9 +10,9 @@ import { Separator } from "@/components/ui/separator"
 import { useApp } from "@/lib/store"
 
 const menuItems = [
-  { icon: Package, label: "Order History", href: "/orders", color: "text-blue-500" },
+  { icon: Package, label: "Order History", href: "/account?tab=orders", color: "text-blue-500" },
   { icon: MapPin, label: "Address Book", href: "/addresses", color: "text-emerald-500" },
-  { icon: Heart, label: "Wishlist", href: "/wishlist", color: "text-red-500" },
+  { icon: Heart, label: "Wishlist", href: "/account?tab=wishlist", color: "text-red-500" },
 ]
 
 function Heart({ className }: { className?: string }) {

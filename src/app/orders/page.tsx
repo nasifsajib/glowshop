@@ -19,22 +19,7 @@ const statusColors: Record<string, "default" | "secondary" | "success" | "warnin
 export default function OrdersPage() {
   const { state } = useApp()
 
-  const orders = [
-    {
-      id: "ORD-2026-001",
-      date: "June 25, 2026",
-      status: "delivered" as const,
-      total: 72.00,
-      items: state.cart.length ? state.cart : [{ product: { id: "p1", name: "Vitamin C Brightening Serum", brand: "GlowLab", price: 38 } as any, quantity: 1 }, { product: { id: "p10", name: "Sunscreen SPF 50+", brand: "PureGlow", price: 24, originalPrice: 30, discount: 20 } as any, quantity: 1 }],
-    },
-    {
-      id: "ORD-2026-002",
-      date: "June 18, 2026",
-      status: "shipped" as const,
-      total: 34.00,
-      items: [{ product: { id: "p2", name: "Hyaluronic Acid Moisture Cream", brand: "DewySkin", price: 34, originalPrice: 45, discount: 24 } as any, quantity: 1 }],
-    },
-  ]
+  const orders = state.orders
 
   if (orders.length === 0) {
     return (
