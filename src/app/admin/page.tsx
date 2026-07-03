@@ -1,19 +1,23 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Package, Plus, LogOut, ShoppingBag, DollarSign, TrendingUp, AlertCircle, Clock, ChevronDown, ChevronUp, MapPin, Phone as PhoneIcon } from "lucide-react"
+import { Package, Plus, LogOut, ShoppingBag, DollarSign, Clock, ChevronDown, ChevronUp, MapPin, Phone as PhoneIcon, Mail, User as UserIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useApp } from "@/lib/store"
+import { fetchOrders, updateOrderStatus } from "@/lib/api"
 import { formatPrice, cn } from "@/lib/utils"
+import { toast } from "@/hooks/use-toast"
+
+const statusFlow = ["pending", "confirmed", "shipped", "delivered"]
 
 const orderStatusColor: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-600",
-  processing: "bg-blue-500/10 text-blue-600",
+  confirmed: "bg-blue-500/10 text-blue-600",
   shipped: "bg-violet-500/10 text-violet-600",
   delivered: "bg-emerald-500/10 text-emerald-600",
   cancelled: "bg-red-500/10 text-red-600",
@@ -21,28 +25,59 @@ const orderStatusColor: Record<string, string> = {
 
 const orderStatusLabel: Record<string, string> = {
   pending: "Pending",
-  processing: "Processing",
+  confirmed: "Confirmed",
   shipped: "Shipped",
   delivered: "Delivered",
   cancelled: "Cancelled",
 }
 
-const revenue = (orders: { total: number }[]) => orders.reduce((s, o) => s + o.total, 0)
-
 export default function AdminDashboard() {
   const router = useRouter()
   const { state, dispatch } = useApp()
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+  const [allOrders, setAllOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const loadOrders = useCallback(async () => {
+    try {
+      const orders = await fetchOrders()
+      setAllOrders(orders)
+    } catch (err) {
+      console.error("Failed to load orders:", err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (state.user && state.user.role === "admin") {
+      loadOrders()
+    }
+  }, [state.user, loadOrders])
 
   useEffect(() => {
     if (!state.user || state.user.role !== "admin") router.push("/login")
   }, [state.user, router])
 
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    setUpdatingId(orderId)
+    try {
+      await updateOrderStatus(orderId, newStatus)
+      setAllOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
+      toast({ title: `Order ${orderId} marked as ${orderStatusLabel[newStatus]}`, variant: "success" })
+    } catch (err) {
+      toast({ title: "Failed to update status", variant: "error" })
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
   if (!state.user || state.user.role !== "admin") return null
 
-  const totalRevenue = revenue(state.orders)
-  const totalOrders = state.orders.length
-  const pendingOrders = state.orders.filter(o => o.status === "pending").length
+  const totalRevenue = allOrders.reduce((s, o) => s + Number(o.total), 0)
+  const totalOrders = allOrders.length
+  const pendingOrders = allOrders.filter(o => o.status === "pending").length
 
   const stats = [
     { label: "Total Products", value: state.products.length, icon: Package, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -147,27 +182,29 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {totalOrders === 0 ? (
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground animate-pulse">Loading orders...</div>
+            ) : allOrders.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <ShoppingBag className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No orders yet.</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {state.orders.map((order) => (
+                {allOrders.map((order) => (
                   <div key={order.id} className="border rounded-xl overflow-hidden">
                     <button
                       onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
                       className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
                     >
-                      <div className="flex items-center gap-3">
-                        <div>
-                          <p className="font-medium text-sm">{order.id}</p>
-                          <p className="text-xs text-muted-foreground">{order.date} &middot; {order.items.length} item{order.items.length > 1 ? "s" : ""}</p>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">{order.id}</p>
+                          <p className="text-xs text-muted-foreground truncate">{order.user_name || "Unknown"}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-semibold">{formatPrice(order.total)}</span>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="text-sm font-semibold">{formatPrice(Number(order.total))}</span>
                         <Badge className={cn("text-xs", orderStatusColor[order.status])}>
                           {orderStatusLabel[order.status]}
                         </Badge>
@@ -176,24 +213,74 @@ export default function AdminDashboard() {
                     </button>
                     {expandedOrder === order.id && (
                       <div className="px-4 pb-4 pt-0 border-t">
-                        <div className="mt-3 space-y-2">
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Shipping Address</p>
-                          <div className="text-sm space-y-1 text-muted-foreground">
-                            <p className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> {order.address.fullName}</p>
-                            <p className="ml-5">{order.address.street}, {order.address.city}, {order.address.state} {order.address.zip}</p>
-                            <p className="flex items-center gap-1.5 ml-0"><PhoneIcon className="h-3.5 w-3.5" /> {order.address.phone}</p>
-                          </div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mt-3">Items</p>
-                          {order.items.map((item) => (
-                            <div key={item.product.id} className="flex items-center gap-2 text-sm">
-                              <span className="w-6 h-6 rounded bg-muted overflow-hidden shrink-0">
-                                <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
-                              </span>
-                              <span className="flex-1 truncate">{item.product.name}</span>
-                              <span className="text-muted-foreground">x{item.quantity}</span>
-                              <span className="font-medium">{formatPrice(item.product.price * item.quantity)}</span>
+                        <div className="mt-3 space-y-3">
+                          {/* Customer Info */}
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Customer</p>
+                            <div className="text-sm space-y-1 text-muted-foreground">
+                              <p className="flex items-center gap-1.5"><UserIcon className="h-3.5 w-3.5" /> {order.user_name}</p>
+                              <p className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {order.user_email}</p>
                             </div>
-                          ))}
+                          </div>
+
+                          {/* Shipping Address */}
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Shipping Address</p>
+                            <div className="text-sm space-y-1 text-muted-foreground">
+                              <p className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> {order.address?.fullName}</p>
+                              <p className="ml-5">{order.address?.street}, {order.address?.city}, {order.address?.state} {order.address?.zip}</p>
+                              <p className="flex items-center gap-1.5"><PhoneIcon className="h-3.5 w-3.5" /> {order.address?.phone}</p>
+                            </div>
+                          </div>
+
+                          {/* Items */}
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Items ({order.date})</p>
+                            {order.items?.map((item: any) => (
+                              <div key={item.product?.id || item.id} className="flex items-center gap-2 text-sm py-1">
+                                <span className="w-6 h-6 rounded bg-muted overflow-hidden shrink-0">
+                                  <img src={item.product?.images?.[0] || ""} alt="" className="w-full h-full object-cover" />
+                                </span>
+                                <span className="flex-1 truncate">{item.product?.name || "Product"}</span>
+                                <span className="text-muted-foreground">x{item.quantity}</span>
+                                <span className="font-medium">{formatPrice(Number(item.product?.price || 0) * item.quantity)}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Status Control */}
+                          <div className="pt-2 border-t">
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Update Status</p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {statusFlow.map((s) => (
+                                <Button
+                                  key={s}
+                                  size="sm"
+                                  variant={order.status === s ? "default" : "outline"}
+                                  disabled={updatingId === order.id}
+                                  onClick={() => handleStatusChange(order.id, s)}
+                                  className={cn(
+                                    "text-xs",
+                                    order.status === s && s === "cancelled" && "bg-red-500 hover:bg-red-600",
+                                    order.status === s && s === "delivered" && "bg-emerald-500 hover:bg-emerald-600"
+                                  )}
+                                >
+                                  {updatingId === order.id ? "..." : orderStatusLabel[s]}
+                                </Button>
+                              ))}
+                              {order.status !== "cancelled" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={updatingId === order.id}
+                                  onClick={() => handleStatusChange(order.id, "cancelled")}
+                                  className="text-xs text-red-500 border-red-200 hover:bg-red-50"
+                                >
+                                  Cancel
+                                </Button>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}

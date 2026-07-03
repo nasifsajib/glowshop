@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useApp } from "@/lib/store"
+import { supabase } from "@/lib/supabase"
+import { saveOrder } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
 import { formatPrice, generateId } from "@/lib/utils"
 
@@ -81,6 +83,23 @@ export default function CheckoutPage() {
 
     dispatch({ type: "ADD_ORDER", payload: order })
     dispatch({ type: "CLEAR_CART" })
+
+    // Save to Supabase for cross-device sync
+    try {
+      await saveOrder({
+        id: order.id,
+        user_id: state.user?.id || "",
+        user_name: state.user?.name || fullName.trim(),
+        user_email: state.user?.email || "",
+        items: order.items,
+        total: order.total,
+        status: "pending",
+        date: order.date,
+        address: order.address,
+      })
+    } catch (err) {
+      console.error("Failed to sync order to Supabase:", err)
+    }
 
     toast({
       title: "Order placed!",

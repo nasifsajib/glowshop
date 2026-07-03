@@ -167,3 +167,47 @@ export async function deleteProduct(id: string): Promise<void> {
   const { error } = await supabase.from("products").delete().eq("id", id)
   if (error) throw error
 }
+
+// ─── Orders ──────────────────────────────────────────────
+
+export async function saveOrder(order: {
+  id: string
+  user_id: string
+  user_name: string
+  user_email: string
+  items: any[]
+  total: number
+  status: string
+  date: string
+  address: any
+}): Promise<void> {
+  const { error } = await supabase.from("orders").insert({
+    id: order.id,
+    user_id: order.user_id,
+    user_name: order.user_name,
+    user_email: order.user_email,
+    items: order.items,
+    total: order.total,
+    status: order.status,
+    date: order.date,
+    address: order.address,
+  })
+  if (error) throw error
+}
+
+export async function fetchOrders(): Promise<any[]> {
+  const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+export async function fetchUserOrders(userId: string): Promise<any[]> {
+  const { data, error } = await supabase.from("orders").select("*").eq("user_id", userId).order("created_at", { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+export async function updateOrderStatus(orderId: string, status: string): Promise<void> {
+  const { error } = await supabase.from("orders").update({ status }).eq("id", orderId)
+  if (error) throw error
+}

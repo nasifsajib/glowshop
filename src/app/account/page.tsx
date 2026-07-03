@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { useApp } from "@/lib/store"
 import { supabase } from "@/lib/supabase"
+import { fetchUserOrders } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
 import { formatPrice, cn } from "@/lib/utils"
 
@@ -41,6 +42,25 @@ function AccountContent() {
       setActiveTab(t)
     }
   }, [searchParams])
+
+  // Sync orders from Supabase to get live status updates
+  useEffect(() => {
+    if (!state.user) return
+    fetchUserOrders(state.user.id)
+      .then((orders) => {
+        if (orders.length > 0) {
+          dispatch({ type: "SET_ORDERS", payload: orders.map((o: any) => ({
+            id: o.id,
+            items: o.items || [],
+            total: Number(o.total),
+            status: o.status,
+            date: o.date,
+            address: o.address || { fullName: "", street: "", city: "", state: "", zip: "", phone: "" },
+          })) })
+        }
+      })
+      .catch(() => {})
+  }, [state.user, dispatch])
 
   const subtotal = state.cart.reduce((total, item) => total + item.product.price * item.quantity, 0)
   const shipping = subtotal >= 50 ? 0 : 5.99
