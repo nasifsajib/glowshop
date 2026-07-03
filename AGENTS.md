@@ -123,44 +123,63 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
 
 ## Recent Fixes (Jul 3)
 
-### Session Persistence
-- **Problem**: User logged out on page refresh/navigation because `HYDRATE` reducer didn't handle the `user` field.
-- **Fix**: `restoreSession` in `store.tsx` now dispatches `SET_USER` separately after `HYDRATE`. Added `supabase.auth.getSession()` check on mount. Added `onAuthStateChanged` listener. Falls back to `parsed.user` from saved state if `glowshop-admin` key is missing.
+### Session Persistence Fix (Jul 3)
+- **Problem**: User logged out on navigation because `HYDRATE` reducer discarded the `user` field and nav Account links were hardcoded to `/login`.
+- **Fix**: `restoreSession` dispatches `SET_USER` separately after `HYDRATE`. Added `supabase.auth.getSession()` check + `onAuthStateChanged` listener. Falls back to `parsed.user` from saved state. Header and bottom nav Account links now go to `/account` if logged in, `/login` if not.
+- **Logout button**: Added to account dashboard (`src/app/account/page.tsx`).
 
-### Nav Account Links
-- **Problem**: Header and mobile bottom nav "Account" always pointed to `/login`.
-- **Fix**: Both now link to `/account` if logged in, `/login` if not (`src/components/layout/header.tsx`, `mobile-bottom-nav.tsx`).
+### Currency Change (Jul 3)
+- **Change**: `formatPrice` in `src/lib/utils.ts` switched from USD to BDT with locale `en-BD`, 0 decimal places.
 
-### Admin Orders Panel
-- **Fix**: Replaced hardcoded stats with real data from `state.orders`. Added expandable order list with address, items, and status badges (`src/app/admin/page.tsx`).
+### Hero Images on Mobile (Jul 3)
+- **Problem**: Hero banner images hidden on mobile (`hidden lg:flex`).
+- **Fix**: Changed to `flex` with `order-first` (image above text on mobile), responsive sizing (`w-48 h-48` mobile → `w-72 h-72` desktop).
 
-## Known Issues & Next Steps
+### Header Category Counts (Jul 3)
+- **Problem**: Header dropdown and mobile menu used static `cat.itemCount` (wrong values like 245, 189).
+- **Fix**: Changed to `state.products.filter(p => p.category === cat.name).length` — same as homepage categories section.
 
-1. **Admin cannot see customer orders** — orders are only in localStorage. Need a Supabase `orders` table and backend sync if admin dashboard needs order management.
-2. **WhatsApp number** is still placeholder `wa.me/1234567890` — needs real business number.
-3. **Social media links** in footer need URLs when user provides them.
-4. **Email confirmation is OFF** in Supabase — this is intentional for now.
-5. **No product variants/inventory tracking** — all products have single price/stock.
-6. **No payment processing** — COD only for now.
-7. **Images are local** — need to be uploaded to Supabase storage or CDN for production.
+### Supabase Orders Sync (Jul 3)
+- **Problem**: Orders only in localStorage — admin on another device couldn't see customer orders, and no status updates.
+- **Fix**:
+  - Created `orders` table in Supabase (run `supabase-migration.sql` in Supabase SQL Editor)
+  - Added API functions: `saveOrder`, `fetchOrders`, `fetchUserOrders`, `updateOrderStatus` in `src/lib/api.ts`
+  - Checkout now saves order to Supabase after placing (`src/app/checkout/page.tsx`)
+  - Admin dashboard fetches all orders from Supabase, shows customer info (name, email, address, phone), has status buttons: Pending → Confirmed → Shipped → Delivered + Cancel (`src/app/admin/page.tsx`)
+  - Account page fetches user's orders from Supabase on mount to get live status updates (`src/app/account/page.tsx`)
+
+## Known Issues
+
+1. **WhatsApp number** still placeholder `wa.me/1234567890`
+2. **Social media links** in footer need URLs
+3. **No product variants/inventory tracking**
+4. **COD only** — no card/online payment
+5. **Images are local** — not uploaded to CDN/storage
 
 ## File Map
 
 | File | Purpose |
 |------|---------|
 | `src/lib/supabase.ts` | Supabase client init (hardcoded keys only) |
-| `src/lib/store.tsx` | App state (Context + useReducer), includes orders, cart, wishlist, HYDRATE |
+| `src/lib/store.tsx` | App state (Context + useReducer), orders, cart, wishlist, HYDRATE |
+| `src/lib/api.ts` | Supabase data fetching + orders CRUD |
 | `src/lib/data.ts` | Fallback products, categories, brands |
 | `src/lib/reviews.ts` | Fallback review data |
 | `src/lib/blog.ts` | Fallback blog post data |
-| `src/lib/utils.ts` | `formatPrice`, `generateId`, etc. |
+| `src/lib/utils.ts` | `formatPrice` (BDT), `generateId`, etc. |
 | `src/app/login/page.tsx` | Login with `?redirect=` support, admin fallback |
 | `src/app/register/page.tsx` | Register with `?redirect=` support |
-| `src/app/checkout/page.tsx` | COD checkout with auth guard |
-| `src/app/account/page.tsx` | Dashboard with 4 tabs (Orders/Wishlist/Cart/Payment) |
+| `src/app/checkout/page.tsx` | COD checkout, saves order to Supabase |
+| `src/app/account/page.tsx` | Dashboard with 4 tabs, fetches live order status from Supabase |
+| `src/app/admin/page.tsx` | Admin dashboard — Supabase orders with status controls |
 | `src/app/cart/page.tsx` | Cart with "Proceed to Checkout" → `/checkout` |
 | `src/app/orders/page.tsx` | Order history from state |
 | `src/app/products/[slug]/page.tsx` | Product detail with Buy Now flow |
 | `src/app/profile/page.tsx` | User profile with sidebar links to account tabs |
+| `src/components/home/hero-banner.tsx` | Hero carousel — images visible on all screen sizes |
+| `src/components/home/categories.tsx` | Category grid with dynamic product counts |
+| `src/components/layout/header.tsx` | Header — dynamic account link, dynamic category counts |
+| `src/components/layout/mobile-bottom-nav.tsx` | Mobile nav — dynamic account link |
+| `supabase-migration.sql` | Run once in Supabase SQL Editor to create orders table |
 
 <!-- END:work-history -->
