@@ -77,15 +77,15 @@ export function HeroBanner() {
               </div>
 
               {/* Image */}
-              <div className="hidden lg:flex items-center justify-center relative">
+              <div className="flex items-center justify-center relative order-first lg:order-none">
                 <div className="absolute w-80 h-80 rounded-full bg-white/20 dark:bg-white/5 blur-3xl" />
-                <div className="relative w-72 h-72 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-72 lg:h-72 rounded-2xl overflow-hidden shadow-2xl">
                   <Image
                     src={slides[current].image}
                     alt={slides[current].title}
                     fill
                     className="object-cover"
-                    sizes="288px"
+                    sizes="(max-width: 640px) 192px, (max-width: 1024px) 224px, 288px"
                   />
                 </div>
               </div>
