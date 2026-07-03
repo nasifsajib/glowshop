@@ -121,6 +121,19 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
 - `/profile` sidebar links point to `/account?tab=orders` and `/account?tab=wishlist`
 - `/cart` page "Proceed to Checkout" links to `/checkout`
 
+## Recent Fixes (Jul 3)
+
+### Session Persistence
+- **Problem**: User logged out on page refresh/navigation because `HYDRATE` reducer didn't handle the `user` field.
+- **Fix**: `restoreSession` in `store.tsx` now dispatches `SET_USER` separately after `HYDRATE`. Added `supabase.auth.getSession()` check on mount. Added `onAuthStateChanged` listener. Falls back to `parsed.user` from saved state if `glowshop-admin` key is missing.
+
+### Nav Account Links
+- **Problem**: Header and mobile bottom nav "Account" always pointed to `/login`.
+- **Fix**: Both now link to `/account` if logged in, `/login` if not (`src/components/layout/header.tsx`, `mobile-bottom-nav.tsx`).
+
+### Admin Orders Panel
+- **Fix**: Replaced hardcoded stats with real data from `state.orders`. Added expandable order list with address, items, and status badges (`src/app/admin/page.tsx`).
+
 ## Known Issues & Next Steps
 
 1. **Admin cannot see customer orders** — orders are only in localStorage. Need a Supabase `orders` table and backend sync if admin dashboard needs order management.

@@ -3,11 +3,12 @@
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useState, Suspense } from "react"
-import { ShoppingBag, Heart, Package, CreditCard, Trash2, Minus, Plus, ChevronRight, MapPin, Phone, User as UserIcon } from "lucide-react"
+import { ShoppingBag, Heart, Package, CreditCard, Trash2, Minus, Plus, ChevronRight, MapPin, Phone, User as UserIcon, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { useApp } from "@/lib/store"
+import { supabase } from "@/lib/supabase"
 import { toast } from "@/hooks/use-toast"
 import { formatPrice, cn } from "@/lib/utils"
 
@@ -57,11 +58,27 @@ function AccountContent() {
   return (
     <div className="container mx-auto px-4 py-6 sm:py-8">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold font-heading">My Account</h1>
-        <p className="text-sm text-muted-foreground">
-          {state.user?.name || "Guest"} &middot; {state.user?.email || ""}
-        </p>
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading">My Account</h1>
+          <p className="text-sm text-muted-foreground">
+            {state.user?.name || "Guest"} &middot; {state.user?.email || ""}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            dispatch({ type: "SET_USER", payload: null })
+            try { localStorage.removeItem("glowshop-admin") } catch {}
+            supabase.auth.signOut().catch(() => {})
+            router.push("/")
+            toast({ title: "Logged out", variant: "success" })
+          }}
+          className="gap-1.5"
+        >
+          <LogOut className="h-3.5 w-3.5" /> Logout
+        </Button>
       </div>
 
       {/* Tab Navigation */}
