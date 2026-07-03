@@ -93,7 +93,7 @@ export function Header() {
                           className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm hover:bg-muted transition-colors"
                         >
                           <span>{cat.name}</span>
-                          <span className="text-xs text-muted-foreground">{cat.itemCount}</span>
+                          <span className="text-xs text-muted-foreground">{state.products.filter(p => p.category === cat.name).length}</span>
                         </Link>
                       ))}
                     </div>
