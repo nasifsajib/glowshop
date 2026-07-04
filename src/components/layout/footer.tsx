@@ -1,8 +1,12 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Heart, Mail, MapPin, Phone, Globe, MessageCircle, Video, Camera } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { getSocialLinks, type SocialLinks } from "@/lib/socials"
 
 const footerLinks = {
   shop: {
@@ -39,14 +43,22 @@ const footerLinks = {
   },
 }
 
-const socials = [
-  { icon: Camera, href: "#", label: "Instagram" },
-  { icon: MessageCircle, href: "#", label: "Facebook" },
-  { icon: Globe, href: "#", label: "Twitter" },
-  { icon: Video, href: "#", label: "YouTube" },
+const socialIcons: { key: keyof SocialLinks; icon: any; label: string }[] = [
+  { key: "instagram", icon: Camera, label: "Instagram" },
+  { key: "facebook", icon: MessageCircle, label: "Facebook" },
+  { key: "twitter", icon: Globe, label: "Twitter" },
+  { key: "youtube", icon: Video, label: "YouTube" },
 ]
 
 export function Footer() {
+  const [socials, setSocials] = useState<SocialLinks | null>(null)
+
+  useEffect(() => {
+    setSocials(getSocialLinks())
+  }, [])
+
+  const links = socials || getSocialLinks()
+
   return (
     <footer className="border-t bg-muted/30">
       {/* Newsletter */}
@@ -110,14 +122,16 @@ export function Footer() {
               </div>
             </div>
             <div className="flex gap-2 mt-6">
-              {socials.map((social) => (
+              {socialIcons.map((s) => (
                 <a
-                  key={social.label}
-                  href={social.href}
-                  aria-label={social.label}
+                  key={s.label}
+                  href={links[s.key]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
                   className="flex h-10 w-10 items-center justify-center rounded-full border bg-background hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
                 >
-                  <social.icon className="h-4 w-4" />
+                  <s.icon className="h-4 w-4" />
                 </a>
               ))}
             </div>

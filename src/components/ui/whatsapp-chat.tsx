@@ -1,12 +1,21 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { MessageCircle } from "lucide-react"
 import { motion } from "framer-motion"
+import { getSocialLinks } from "@/lib/socials"
 
 export function WhatsAppChat() {
+  const [href, setHref] = useState("https://wa.me/1234567890")
+
+  useEffect(() => {
+    const links = getSocialLinks()
+    if (links.whatsapp && links.whatsapp !== "#") setHref(links.whatsapp)
+  }, [])
+
   return (
     <motion.a
-      href="https://wa.me/1234567890"
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
