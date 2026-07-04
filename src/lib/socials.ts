@@ -4,8 +4,7 @@ export interface SocialLinks {
   whatsapp: string
   facebook: string
   instagram: string
-  twitter: string
-  youtube: string
+  tiktok: string
 }
 
 const STORAGE_KEY = "glowshop-socials"
@@ -14,8 +13,7 @@ export const defaultSocials: SocialLinks = {
   whatsapp: "https://wa.me/1234567890",
   facebook: "#",
   instagram: "#",
-  twitter: "#",
-  youtube: "#",
+  tiktok: "#",
 }
 
 export function getSocialLinks(): SocialLinks {
@@ -31,8 +29,6 @@ export function saveSocialLinks(links: SocialLinks): void {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(links)) } catch {}
 }
 
-// ── Supabase sync (cross-device) ──────────────────────────
-
 export async function fetchSocialLinksFromDB(): Promise<SocialLinks | null> {
   try {
     const { data, error } = await supabase.from("social_links").select("*").limit(1).single()
@@ -41,8 +37,7 @@ export async function fetchSocialLinksFromDB(): Promise<SocialLinks | null> {
       whatsapp: data.whatsapp || defaultSocials.whatsapp,
       facebook: data.facebook || defaultSocials.facebook,
       instagram: data.instagram || defaultSocials.instagram,
-      twitter: data.twitter || defaultSocials.twitter,
-      youtube: data.youtube || defaultSocials.youtube,
+      tiktok: data.tiktok || defaultSocials.tiktok,
     }
   } catch { return null }
 }

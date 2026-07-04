@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Heart, Mail, MapPin, Phone, Globe, MessageCircle, Video, Camera } from "lucide-react"
+import { Heart, Mail, MapPin, Phone } from "lucide-react"
+import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -43,11 +44,11 @@ const footerLinks = {
   },
 }
 
-const socialIcons: { key: keyof SocialLinks; icon: any; label: string }[] = [
-  { key: "instagram", icon: Camera, label: "Instagram" },
-  { key: "facebook", icon: MessageCircle, label: "Facebook" },
-  { key: "twitter", icon: Globe, label: "Twitter" },
-  { key: "youtube", icon: Video, label: "YouTube" },
+const socialIcons: { key: keyof SocialLinks; icon: any; label: string; color: string }[] = [
+  { key: "facebook", icon: FaFacebook, label: "Facebook", color: "#1877F2" },
+  { key: "instagram", icon: FaInstagram, label: "Instagram", color: "#E4405F" },
+  { key: "tiktok", icon: FaTiktok, label: "TikTok", color: "#000000" },
+  { key: "whatsapp", icon: FaWhatsapp, label: "WhatsApp", color: "#25D366" },
 ]
 
 export function Footer() {
@@ -134,9 +135,10 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border bg-background hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border bg-background hover:border-current transition-all duration-300"
+                  style={{ color: s.color }}
                 >
-                  <s.icon className="h-4 w-4" />
+                  <s.icon className="h-5 w-5" />
                 </a>
               ))}
             </div>

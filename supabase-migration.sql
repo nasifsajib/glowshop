@@ -4,14 +4,13 @@ CREATE TABLE IF NOT EXISTS social_links (
   whatsapp TEXT NOT NULL DEFAULT 'https://wa.me/1234567890',
   facebook TEXT NOT NULL DEFAULT '#',
   instagram TEXT NOT NULL DEFAULT '#',
-  twitter TEXT NOT NULL DEFAULT '#',
-  youtube TEXT NOT NULL DEFAULT '#',
+  tiktok TEXT NOT NULL DEFAULT '#',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   CONSTRAINT single_row CHECK (id = 1)
 );
 
-INSERT INTO social_links (id, whatsapp, facebook, instagram, twitter, youtube)
-VALUES (1, 'https://wa.me/1234567890', '#', '#', '#', '#')
+INSERT INTO social_links (id, whatsapp, facebook, instagram, tiktok)
+VALUES (1, 'https://wa.me/1234567890', '#', '#', '#')
 ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE social_links ENABLE ROW LEVEL SECURITY;
@@ -24,6 +23,12 @@ CREATE POLICY "Admin can upsert social links"
 
 CREATE POLICY "Admin can update social links"
   ON social_links FOR UPDATE USING (true) WITH CHECK (true);
+
+-- Fix: update existing table columns (add tiktok, remove twitter/youtube if they exist)
+ALTER TABLE social_links ADD COLUMN IF NOT EXISTS tiktok TEXT NOT NULL DEFAULT '#';
+ALTER TABLE social_links DROP COLUMN IF EXISTS twitter;
+ALTER TABLE social_links DROP COLUMN IF EXISTS youtube;
+NOTIFY pgrst, 'reload schema';
 
 -- Create orders table for cross-device order sync
 CREATE TABLE IF NOT EXISTS orders (

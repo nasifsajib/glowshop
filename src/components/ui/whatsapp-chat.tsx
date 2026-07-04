@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { MessageCircle } from "lucide-react"
+import { FaWhatsapp } from "react-icons/fa"
 import { motion } from "framer-motion"
 import { getSocialLinks, fetchSocialLinksFromDB, saveSocialLinks } from "@/lib/socials"
 
@@ -33,7 +33,7 @@ export function WhatsAppChat() {
       animate={{ y: [0, -5, 0] }}
       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
     >
-      <MessageCircle className="h-6 w-6" />
+      <FaWhatsapp className="h-7 w-7" />
     </motion.a>
   )
 }

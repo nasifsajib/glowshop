@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Package, Plus, LogOut, ShoppingBag, DollarSign, Clock, ChevronDown, ChevronUp, MapPin, Phone as PhoneIcon, Mail, User as UserIcon, Globe, Camera, MessageCircle, Video, Save } from "lucide-react"
+import { Package, Plus, LogOut, ShoppingBag, DollarSign, Clock, ChevronDown, ChevronUp, MapPin, Phone as PhoneIcon, Mail, User as UserIcon, Globe, Save } from "lucide-react"
+import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -202,24 +203,20 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="space-y-4 max-w-lg">
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><MessageCircle className="h-4 w-4 text-emerald-500" /> WhatsApp Link</Label>
+                  <Label className="flex items-center gap-2"><FaWhatsapp className="h-4 w-4" style={{ color: "#25D366" }} /> WhatsApp Link</Label>
                   <Input value={socialLinks.whatsapp} onChange={e => setSocialLinks(p => ({ ...p, whatsapp: e.target.value }))} placeholder="https://wa.me/1234567890" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Camera className="h-4 w-4 text-pink-500" /> Instagram</Label>
-                  <Input value={socialLinks.instagram} onChange={e => setSocialLinks(p => ({ ...p, instagram: e.target.value }))} placeholder="https://instagram.com/glowshop" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><MessageCircle className="h-4 w-4 text-blue-500" /> Facebook</Label>
+                  <Label className="flex items-center gap-2"><FaFacebook className="h-4 w-4" style={{ color: "#1877F2" }} /> Facebook</Label>
                   <Input value={socialLinks.facebook} onChange={e => setSocialLinks(p => ({ ...p, facebook: e.target.value }))} placeholder="https://facebook.com/glowshop" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Globe className="h-4 w-4 text-sky-500" /> Twitter / X</Label>
-                  <Input value={socialLinks.twitter} onChange={e => setSocialLinks(p => ({ ...p, twitter: e.target.value }))} placeholder="https://twitter.com/glowshop" />
+                  <Label className="flex items-center gap-2"><FaInstagram className="h-4 w-4" style={{ color: "#E4405F" }} /> Instagram</Label>
+                  <Input value={socialLinks.instagram} onChange={e => setSocialLinks(p => ({ ...p, instagram: e.target.value }))} placeholder="https://instagram.com/glowshop" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Video className="h-4 w-4 text-red-500" /> YouTube</Label>
-                  <Input value={socialLinks.youtube} onChange={e => setSocialLinks(p => ({ ...p, youtube: e.target.value }))} placeholder="https://youtube.com/@glowshop" />
+                  <Label className="flex items-center gap-2"><FaTiktok className="h-4 w-4" /> TikTok</Label>
+                  <Input value={socialLinks.tiktok} onChange={e => setSocialLinks(p => ({ ...p, tiktok: e.target.value }))} placeholder="https://tiktok.com/@glowshop" />
                 </div>
                 <Button
                   variant="premium"
