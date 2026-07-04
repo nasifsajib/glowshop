@@ -29,9 +29,9 @@ export function MobileBottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur-lg lg:hidden">
       <div className="flex items-center justify-around h-16 px-2">
         {items.map((item) => {
-          const href = item.account ? (state.user ? "/account" : "/login") : item.href
+          const href = item.account ? (state.user ? (state.user.role === "admin" ? "/admin" : "/account") : "/login") : item.href
           const Icon = item.icon
-          const isActive = pathname === (item.account ? (state.user ? "/account" : "/login") : item.href)
+          const isActive = pathname === (item.account ? (state.user ? (state.user.role === "admin" ? "/admin" : "/account") : "/login") : item.href)
           const count = getCount(item)
           return (
             <Link
