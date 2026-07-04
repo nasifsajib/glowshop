@@ -3,14 +3,22 @@
 import { useState, useEffect } from "react"
 import { MessageCircle } from "lucide-react"
 import { motion } from "framer-motion"
-import { getSocialLinks } from "@/lib/socials"
+import { getSocialLinks, fetchSocialLinksFromDB, saveSocialLinks } from "@/lib/socials"
 
 export function WhatsAppChat() {
   const [href, setHref] = useState("https://wa.me/1234567890")
 
   useEffect(() => {
-    const links = getSocialLinks()
-    if (links.whatsapp && links.whatsapp !== "#") setHref(links.whatsapp)
+    // Load from cache first
+    const cached = getSocialLinks()
+    if (cached.whatsapp && cached.whatsapp !== "#") setHref(cached.whatsapp)
+    // Then fetch latest from Supabase
+    fetchSocialLinksFromDB().then((db) => {
+      if (db?.whatsapp && db.whatsapp !== "#") {
+        setHref(db.whatsapp)
+        saveSocialLinks(db)
+      }
+    })
   }, [])
 
   return (

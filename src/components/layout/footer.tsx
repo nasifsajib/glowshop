@@ -6,7 +6,7 @@ import { Heart, Mail, MapPin, Phone, Globe, MessageCircle, Video, Camera } from 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { getSocialLinks, type SocialLinks } from "@/lib/socials"
+import { getSocialLinks, fetchSocialLinksFromDB, saveSocialLinks, type SocialLinks } from "@/lib/socials"
 
 const footerLinks = {
   shop: {
@@ -51,13 +51,18 @@ const socialIcons: { key: keyof SocialLinks; icon: any; label: string }[] = [
 ]
 
 export function Footer() {
-  const [socials, setSocials] = useState<SocialLinks | null>(null)
+  const [socials, setSocials] = useState<SocialLinks>(getSocialLinks())
 
   useEffect(() => {
-    setSocials(getSocialLinks())
+    fetchSocialLinksFromDB().then((db) => {
+      if (db) {
+        setSocials(db)
+        saveSocialLinks(db) // cache locally
+      }
+    })
   }, [])
 
-  const links = socials || getSocialLinks()
+  const links = socials
 
   return (
     <footer className="border-t bg-muted/30">

@@ -101,8 +101,13 @@ export default function CheckoutPage() {
         date: order.date,
         address: order.address,
       })
-    } catch (err) {
-      console.error("Failed to sync order to Supabase:", err)
+    } catch (err: any) {
+      console.error("Failed to sync order to Supabase:", err?.message || err, err)
+      toast({
+        title: "Order saved locally only",
+        description: err?.message || "Could not sync to server. Check console for details.",
+        variant: "error",
+      })
     }
 
     toast({

@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { useApp } from "@/lib/store"
 import { fetchOrders, updateOrderStatus } from "@/lib/api"
 import { formatPrice, cn } from "@/lib/utils"
-import { getSocialLinks, saveSocialLinks, defaultSocials, type SocialLinks } from "@/lib/socials"
+import { getSocialLinks, saveSocialLinks, fetchSocialLinksFromDB, saveSocialLinksToDB, defaultSocials, type SocialLinks } from "@/lib/socials"
 import { toast } from "@/hooks/use-toast"
 
 const statusFlow = ["pending", "confirmed", "shipped", "delivered"]
@@ -41,11 +41,16 @@ export default function AdminDashboard() {
   const [allOrders, setAllOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
-  const [socialLinks, setSocialLinks] = useState<SocialLinks>(defaultSocials)
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>(() => getSocialLinks())
   const [socialOpen, setSocialOpen] = useState(false)
 
   useEffect(() => {
-    setSocialLinks(getSocialLinks())
+    fetchSocialLinksFromDB().then((db) => {
+      if (db) {
+        setSocialLinks(db)
+        saveSocialLinks(db)
+      }
+    })
   }, [])
 
   const loadOrders = useCallback(async () => {
@@ -219,9 +224,17 @@ export default function AdminDashboard() {
                 <Button
                   variant="premium"
                   className="gap-2"
-                  onClick={() => {
+                  onClick={async () => {
+                    // Save to localStorage (immediate)
                     saveSocialLinks(socialLinks)
-                    toast({ title: "Social links saved!", variant: "success" })
+                    // Sync to Supabase (cross-device)
+                    try {
+                      await saveSocialLinksToDB(socialLinks)
+                      toast({ title: "Social links saved for all devices!", variant: "success" })
+                    } catch (err) {
+                      console.error("Failed to sync social links to DB:", err)
+                      toast({ title: "Saved locally only", description: "Could not sync to server.", variant: "error" })
+                    }
                     setSocialOpen(false)
                   }}
                 >

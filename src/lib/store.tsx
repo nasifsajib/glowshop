@@ -197,6 +197,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function restoreSession() {
+      // Always restore saved state (cart, orders, wishlist, etc.) from localStorage
+      try {
+        const saved = localStorage.getItem("glowshop-state")
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          dispatch({ type: "HYDRATE", payload: { ...parsed } })
+        }
+      } catch {}
+
+      // Then try to restore the user — Supabase session takes priority
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
@@ -210,24 +220,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           return
         }
       } catch {}
+
+      // Fallback to admin user from localStorage (if any)
       try {
-          const saved = localStorage.getItem("glowshop-state")
-          if (saved) {
-            const parsed = JSON.parse(saved)
-            const adminSaved = localStorage.getItem("glowshop-admin")
-            let user = null
-            if (adminSaved) {
-              try { user = JSON.parse(adminSaved) } catch {}
-            }
-            dispatch({ type: "HYDRATE", payload: { ...parsed } })
-            if (user) dispatch({ type: "SET_USER", payload: user })
-          } else {
-          const adminSaved = localStorage.getItem("glowshop-admin")
-          if (adminSaved) {
-            try { dispatch({ type: "SET_USER", payload: JSON.parse(adminSaved) }) } catch {}
-          }
+        const adminSaved = localStorage.getItem("glowshop-admin")
+        if (adminSaved) {
+          dispatch({ type: "SET_USER", payload: JSON.parse(adminSaved) })
         }
-      } catch { /* ignore */ }
+      } catch {}
     }
     restoreSession()
   }, [])

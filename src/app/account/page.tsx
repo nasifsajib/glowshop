@@ -91,7 +91,7 @@ function AccountContent() {
           onClick={() => {
             dispatch({ type: "SET_USER", payload: null })
             try { localStorage.removeItem("glowshop-admin") } catch {}
-            supabase.auth.signOut().catch(() => {})
+            supabase.auth.signOut({ scope: "local" }).catch(() => {})
             router.push("/")
             toast({ title: "Logged out", variant: "success" })
           }}
