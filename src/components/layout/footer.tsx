@@ -128,19 +128,23 @@ export function Footer() {
               </div>
             </div>
             <div className="flex gap-2 mt-6">
-              {socialIcons.map((s) => (
-                <a
-                  key={s.label}
-                  href={links[s.key]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border bg-background hover:border-current transition-all duration-300"
-                  style={{ color: s.color }}
-                >
-                  <s.icon className="h-5 w-5" />
-                </a>
-              ))}
+              {socialIcons.map((s) => {
+                const url = links[s.key]
+                if (!url || url === "#") return null
+                return (
+                  <a
+                    key={s.label}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border bg-background hover:border-current transition-all duration-300"
+                    style={{ color: s.color }}
+                  >
+                    <s.icon className="h-5 w-5" />
+                  </a>
+                )
+              })}
             </div>
           </div>
 

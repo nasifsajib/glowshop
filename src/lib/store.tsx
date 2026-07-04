@@ -214,7 +214,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (saved) {
             try { dispatch({ type: "SET_USER", payload: JSON.parse(saved) }); return } catch {}
           }
-          const user: User = { id: session.user.id, name: session.user.email || "User", email: session.user.email || "", avatar: "", phone: "", role: "user" }
+          const isAdmin = session.user.email === "admin@glowshop.com"
+          const user: User = isAdmin
+            ? { id: session.user.id, name: "Admin", email: "admin@glowshop.com", avatar: "", phone: "", role: "admin" }
+            : { id: session.user.id, name: session.user.email || "User", email: session.user.email || "", avatar: "", phone: "", role: "user" }
           dispatch({ type: "SET_USER", payload: user })
           try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
           return
@@ -235,17 +238,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT") {
+        const adminSaved = localStorage.getItem("glowshop-admin")
         dispatch({ type: "SET_USER", payload: null })
-        try { localStorage.removeItem("glowshop-admin") } catch {}
+        // Only clear localStorage on explicit logout (not page refresh)
+        if (!adminSaved) {
+          try { localStorage.removeItem("glowshop-admin") } catch {}
+        }
       } else if (event === "SIGNED_IN" && session?.user) {
         const saved = localStorage.getItem("glowshop-admin")
         if (saved) {
-          try { dispatch({ type: "SET_USER", payload: JSON.parse(saved) }) } catch {}
-        } else {
-          const user: User = { id: session.user.id, name: session.user.email || "User", email: session.user.email || "", avatar: "", phone: "", role: "user" }
-          dispatch({ type: "SET_USER", payload: user })
-          try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
+          try { dispatch({ type: "SET_USER", payload: JSON.parse(saved) }); return } catch {}
         }
+        const isAdmin = session.user.email === "admin@glowshop.com"
+        const user: User = isAdmin
+          ? { id: session.user.id, name: "Admin", email: "admin@glowshop.com", avatar: "", phone: "", role: "admin" }
+          : { id: session.user.id, name: session.user.email || "User", email: session.user.email || "", avatar: "", phone: "", role: "user" }
+        dispatch({ type: "SET_USER", payload: user })
+        try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
       }
     })
     return () => subscription.unsubscribe()
