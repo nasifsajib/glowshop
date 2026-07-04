@@ -18,6 +18,7 @@ import { ProductGrid } from "@/components/product/product-grid"
 import { useApp } from "@/lib/store"
 import { toast } from "@/hooks/use-toast"
 import { formatPrice, cn } from "@/lib/utils"
+import { fbEvent } from "@/lib/pixel"
 
 const ratingBreakdown = { 5: 65, 4: 22, 3: 8, 2: 3, 1: 2 }
 
@@ -67,6 +68,7 @@ export default function ProductDetailPage() {
     for (let i = 0; i < quantity; i++) {
       dispatch({ type: "ADD_TO_CART", payload: product })
     }
+    fbEvent("AddToCart", { content_ids: [product.id], content_name: product.name, content_type: "product", value: product.price, currency: "BDT" })
     toast({
       title: "Added to Cart!",
       description: `${quantity} × ${product.name} added to your cart.`,

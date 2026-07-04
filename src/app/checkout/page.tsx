@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase"
 import { saveOrder } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
 import { formatPrice, generateId } from "@/lib/utils"
+import { fbEvent } from "@/lib/pixel"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -83,6 +84,9 @@ export default function CheckoutPage() {
 
     dispatch({ type: "ADD_ORDER", payload: order })
     dispatch({ type: "CLEAR_CART" })
+
+    // Track purchase in Facebook Pixel
+    fbEvent("Purchase", { value: total, currency: "BDT", content_ids: order.items.map((i: any) => i.product?.id), content_type: "product" })
 
     // Save to Supabase for cross-device sync
     try {
