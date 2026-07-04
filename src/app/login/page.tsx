@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { supabase } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
+import { fetchUserProfile } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
 
 function LoginForm() {
@@ -27,36 +28,35 @@ function LoginForm() {
     e.preventDefault()
     setLoading(true)
 
-    const tEmail = email.trim()
-    const tPass = password.trim()
-
-    const isAdmin = tEmail === "admin@glowshop.com" && tPass === "admin123"
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email: tEmail, password: tPass })
-      if (!error && data?.user) {
-        const user = isAdmin
-          ? { id: data.user.id, name: "Admin", email: tEmail, avatar: "", phone: "", role: "admin" as const }
-          : { id: data.user.id, name: data.user.email || "User", email: tEmail, avatar: "", phone: "", role: "user" as const }
-        dispatch({ type: "SET_USER", payload: user })
-        try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
-        toast({ title: isAdmin ? "Welcome Admin" : "Welcome back!", variant: "success" })
-        router.push(isAdmin ? "/admin" : redirectTo)
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      })
+
+      if (error || !data?.user) {
+        toast({ title: "Invalid credentials", description: "Check your email and password", variant: "error" })
+        setLoading(false)
         return
       }
-    } catch {}
 
-    if (isAdmin) {
-      const fb = { id: "admin-fallback", name: "Admin", email: "admin@glowshop.com", avatar: "", phone: "", role: "admin" as const }
-      dispatch({ type: "SET_USER", payload: fb })
-      try { localStorage.setItem("glowshop-admin", JSON.stringify(fb)) } catch {}
-      toast({ title: "Welcome Admin", variant: "success" })
-      router.push("/admin")
-      return
+      // Fetch profile to determine role
+      const profile = await fetchUserProfile(data.user.id)
+      const isAdmin = profile?.role === "admin"
+
+      const user = isAdmin
+        ? { id: data.user.id, name: "Admin", email: email.trim(), avatar: "", phone: "", role: "admin" as const }
+        : { id: data.user.id, name: data.user.email || "User", email: email.trim(), avatar: "", phone: "", role: "user" as const }
+
+      dispatch({ type: "SET_USER", payload: user })
+      try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
+
+      toast({ title: isAdmin ? "Welcome Admin" : "Welcome back!", variant: "success" })
+      router.push(isAdmin ? "/admin" : redirectTo)
+    } catch {
+      toast({ title: "Something went wrong", description: "Please try again", variant: "error" })
+      setLoading(false)
     }
-
-    toast({ title: "Invalid credentials", description: "Check your email and password", variant: "error" })
-    setLoading(false)
   }
 
   return (

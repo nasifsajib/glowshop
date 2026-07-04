@@ -211,3 +211,13 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
   const { error } = await supabase.from("orders").update({ status }).eq("id", orderId)
   if (error) throw error
 }
+
+// ─── Profiles / Admin Role ────────────────────────────────
+
+export async function fetchUserProfile(userId: string): Promise<{ role: string } | null> {
+  try {
+    const { data, error } = await supabase.from("profiles").select("role").eq("id", userId).single()
+    if (error || !data) return null
+    return data
+  } catch { return null }
+}
