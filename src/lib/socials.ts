@@ -11,9 +11,9 @@ const STORAGE_KEY = "glowshop-socials"
 
 export const defaultSocials: SocialLinks = {
   whatsapp: "https://wa.me/1234567890",
-  facebook: "#",
-  instagram: "#",
-  tiktok: "#",
+  facebook: "",
+  instagram: "",
+  tiktok: "",
 }
 
 export function getSocialLinks(): SocialLinks {

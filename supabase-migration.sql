@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS social_links (
 );
 
 INSERT INTO social_links (id, whatsapp, facebook, instagram, tiktok)
-VALUES (1, 'https://wa.me/1234567890', '#', '#', '#')
+VALUES (1, 'https://wa.me/1234567890', '', '', '')
 ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE social_links ENABLE ROW LEVEL SECURITY;

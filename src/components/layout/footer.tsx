@@ -130,7 +130,7 @@ export function Footer() {
             <div className="flex gap-2 mt-6">
               {socialIcons.map((s) => {
                 const url = links[s.key]
-                if (!url || url === "#") return null
+                if (!url || url === "#" || url.trim() === "") return null
                 return (
                   <a
                     key={s.label}
