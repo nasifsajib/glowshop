@@ -225,7 +225,7 @@ export default function AdminDashboard() {
                     // Strip leading # from any URL
                     const clean = Object.fromEntries(
                       (Object.entries(socialLinks) as [string, string][]).map(([k, v]) => [k, v.replace(/^#+/, "")])
-                    ) as SocialLinks
+                    ) as unknown as SocialLinks
                     setSocialLinks(clean)
                     saveSocialLinks(clean)
                     try {
