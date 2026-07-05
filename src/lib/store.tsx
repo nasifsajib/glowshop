@@ -250,13 +250,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (saved) {
           try { dispatch({ type: "SET_USER", payload: JSON.parse(saved) }); return } catch {}
         }
-        const profile = await fetchUserProfile(session.user.id)
-        const isAdmin = profile?.role === "admin"
-        const user: User = isAdmin
-          ? { id: session.user.id, name: "Admin", email: session.user.email || "", avatar: "", phone: "", role: "admin" }
-          : { id: session.user.id, name: session.user.email || "User", email: session.user.email || "", avatar: "", phone: "", role: "user" }
-        dispatch({ type: "SET_USER", payload: user })
-        try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
+        fetchUserProfile(session.user.id).then((profile) => {
+          const isAdmin = profile?.role === "admin"
+          const user: User = isAdmin
+            ? { id: session.user.id, name: "Admin", email: session.user.email || "", avatar: "", phone: "", role: "admin" }
+            : { id: session.user.id, name: session.user.email || "User", email: session.user.email || "", avatar: "", phone: "", role: "user" }
+          dispatch({ type: "SET_USER", payload: user })
+          try { localStorage.setItem("glowshop-admin", JSON.stringify(user)) } catch {}
+        })
       }
     })
     return () => subscription.unsubscribe()

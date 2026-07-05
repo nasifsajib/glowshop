@@ -31,19 +31,21 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
 
 - **Supabase Project URL:** `https://lokchhaitjizdgqfujir.supabase.co`
 - **Supabase Anon Key (publishable):** `sb_publishable_YTd9ZOjsscO7w_66Gyo4KA_kEQ_hOjg`
-- **Admin login:** `admin@glowshop.com` / `admin123` (hardcoded fallback in login page, bypasses Supabase if it fails)
+- **Admin login:** Uses `profiles` table in Supabase (role column). No hardcoded password.
+  - **PENDING:** Admin user must be created manually in Supabase Dashboard (Auth → Users), then profile set to `role: 'admin'` via SQL Editor.
+  - Old hardcoded fallback (`admin123`) has been removed.
 - **Email confirmation:** DISABLED in Supabase Auth settings (users can sign up and are immediately logged in)
 - **Vercel project:** `glowshop-beige` on `vercel.com/nasifsajibs-projects`
 - **Custom domain (if any):** none yet, uses `glowshop-beige.vercel.app`
 - **Vercel env vars to NEVER set:** `NEXT_PUBLIC_SUPABASE_ANON_KEY` — must NOT exist in Vercel, because old invalid key was overriding the hardcoded correct key
-- **WhatsApp number:** still placeholder `wa.me/1234567890` — needs real number
+- **WhatsApp number:** currently default `https://wa.me/1234567890` — edit in admin dashboard
 
 ## Design System & UI Patterns
 
 - **Color scheme**: Uses CSS variables from `globals.css` — `primary`, `secondary`, `accent`, `muted`, `card`, `background`, `foreground`, `border`
 - **Shadcn/ui components**: Located in `src/components/ui/`. Use `Button`, `Input`, `Label`, `Separator`, `Card`, `Badge`, `Sheet`, `Tabs`, `Select`, `Dialog`, etc.
 - **Button variants**: `premium` (gradient primary), `default`, `outline`, `ghost`, `destructive`
-- **Icons**: `lucide-react` — use icons from that package only
+- **Icons**: `lucide-react` for UI icons, `react-icons/fa` (Font Awesome) for brand icons (Facebook, Instagram, TikTok, WhatsApp)
 - **Typography**: `font-heading` class for headings, `font-sans` for body. Heading sizes: `text-2xl sm:text-3xl font-bold` for page titles
 - **Layout**: `container mx-auto px-4 py-6 sm:py-8` for page wrappers. Cards use `p-6 rounded-2xl border bg-card`
 - **Toast notifications**: `import { toast } from "@/hooks/use-toast"` — usage: `toast({ title: "...", description: "...", variant: "success" | "error" })`
@@ -67,11 +69,15 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
    - Orders: `state.orders` is `Order[]`
    - User: `state.user` is `User | null` where `User = { id, name, email, avatar, phone, role: "user" | "admin" }`
 
-3. **No backend database for orders yet** — orders are stored in localStorage only via the `orders` array in app state. No Supabase orders table. Admin dashboard cannot see customer orders.
+3. **Orders stored in Supabase `orders` table** — checkout saves to both localStorage and Supabase. Admin dashboard fetches all orders from Supabase with status controls (Pending → Confirmed → Shipped → Delivered + Cancel). Account page fetches user's orders from Supabase for live status.
 
-4. **Cart persistence across guest → logged-in:** The `HYDRATE` action reads localStorage on mount, so if a guest adds items then signs up/logs in, the cart items carry over. No special merging needed.
+4. **Cart persistence across guest → logged-in:** The `HYDRATE` action reads localStorage on mount, so if a guest adds items then signs up/logs in, the cart items carry over. No special merging needed. HYDRATE always runs regardless of Supabase session state.
 
-5. **Framer-motion `<motion.div>` breaks form onSubmit** on auth pages — removed from login/register/forgot-password pages. The `initial`/`animate` props cause silent React hydration failure that prevents form submission.
+5. **Social links synced via Supabase** — `social_links` table in Supabase with a single row. Admin saves to both localStorage (fast cache) and Supabase (cross-device). Footer and WhatsApp component fetch from Supabase on mount with localStorage fallback.
+
+6. **Admin role managed via `profiles` table** — links to `auth.users` via UUID. Auto-created as `'user'` on signup via trigger. Must be manually set to `'admin'` via SQL Editor for the admin account. No hardcoded credentials in source code.
+
+7. **Framer-motion `<motion.div>` breaks form onSubmit** on auth pages — removed from login/register/forgot-password pages. The `initial`/`animate` props cause silent React hydration failure that prevents form submission.
 
 ## What Has Been Built
 
@@ -148,13 +154,57 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
   - Admin dashboard fetches all orders from Supabase, shows customer info (name, email, address, phone), has status buttons: Pending → Confirmed → Shipped → Delivered + Cancel (`src/app/admin/page.tsx`)
   - Account page fetches user's orders from Supabase on mount to get live status updates (`src/app/account/page.tsx`)
 
+### HYDRATE Always Runs (Jul 5)
+- **Problem**: `restoreSession` returned early when Supabase session existed, skipping HYDRATE. Cart/orders/wishlist from localStorage never loaded on refresh.
+- **Fix**: Moved HYDRATE dispatch before Supabase session check. Now always restores saved state first, then overlays user session.
+
+### PostgREST Schema Cache (Jul 5)
+- **Problem**: `PGRST204` errors for `address` and `date` columns on `orders` table — Supabase API cache was stale.
+- **Fix**: Added `NOTIFY pgrst, 'reload schema'` to migration. Eventually recreated the table with `DROP TABLE IF EXISTS orders; CREATE TABLE orders (...)`.
+
+### Social Links Cross-Device Sync (Jul 5)
+- **Problem**: Social links saved to localStorage only — changes on PC didn't reflect on phone.
+- **Fix**: Created `social_links` table in Supabase (single row, RLS). Admin saves to both localStorage + Supabase. Footer/WhatsApp fetch from Supabase on mount, fallback to localStorage.
+- Added `fetchSocialLinksFromDB()` and `saveSocialLinksToDB()` in `src/lib/socials.ts`.
+
+### Brand Icons (Jul 5)
+- **Changed**: Replaced generic `MessageCircle`/`Camera`/`Globe`/`Video` icons with real Font Awesome brand icons: `FaFacebook`, `FaInstagram`, `FaTiktok`, `FaWhatsapp` from `react-icons/fa`.
+- **Removed**: Twitter/X and YouTube from social links. Now only WhatsApp, Facebook, Instagram, TikTok.
+- Installed `react-icons` package.
+
+### Admin Logout on Refresh (Jul 5)
+- **Problem**: `onAuthStateChange` fired `SIGNED_OUT` on page load with stale session, removing `glowshop-admin` from localStorage → admin couldn't restore session.
+- **Fix**: Only clear `glowshop-admin` on explicit logout (not on refresh). Also check `session.user.email === "admin@glowshop.com"` as fallback to set role correctly.
+
+### Secure Admin Auth (Jul 5 — IN PROGRESS)
+- **Problem**: Hardcoded `admin123` in client-side code — anyone could view source and log in.
+- **Fix (partial)**: 
+  - Created `profiles` table linked to `auth.users(id)` with `role` column (`'user'` | `'admin'`)
+  - Auto-create profile via trigger on user signup (`role: 'user'`)
+  - Login page now fetches profile after Supabase auth to determine role
+  - Removed hardcoded `admin123` fallback from login
+- **PENDING**: Admin user must be created manually in Supabase Dashboard, then profile updated to `role: 'admin'` via SQL Editor.
+
+### Footer Social Icons Hidden When Empty (Jul 5)
+- **Problem**: Default URLs were `"#"` — clicking them navigated to current page.
+- **Fix**: Changed defaults to `""` (empty string). Footer now hides icons with empty/`#` URLs. Admin input starts empty.
+
+### Nav Account Link for Admin (Jul 5)
+- **Changed**: Header, mobile menu, and bottom nav Account link goes to `/admin` for admin users (`state.user.role === "admin"`), otherwise `/account`.
+
+### Logout Scope (Jul 5)
+- **Fixed**: Changed `supabase.auth.signOut()` to `supabase.auth.signOut({ scope: "local" })` to fix 403 error on global logout.
+
+### Checkout Error Visibility (Jul 5)
+- **Fixed**: Checkout now shows an error toast if Supabase order sync fails (was silently caught before).
+
 ## Known Issues
 
-1. **WhatsApp number** still placeholder `wa.me/1234567890`
-2. **Social media links** in footer need URLs
-3. **No product variants/inventory tracking**
-4. **COD only** — no card/online payment
-5. **Images are local** — not uploaded to CDN/storage
+1. **Admin setup not complete** — admin user must be created in Supabase Dashboard (Auth → Users) and profile set to `role: 'admin'` via SQL Editor
+2. **No product variants/inventory tracking**
+3. **COD only** — no card/online payment
+4. **Images are local** — not uploaded to CDN/storage
+5. **Orders table schema cache** — if `PGRST204` errors occur again, run `NOTIFY pgrst, 'reload schema'` in SQL Editor
 
 ## File Map
 
@@ -167,7 +217,9 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
 | `src/lib/reviews.ts` | Fallback review data |
 | `src/lib/blog.ts` | Fallback blog post data |
 | `src/lib/utils.ts` | `formatPrice` (BDT), `generateId`, etc. |
-| `src/app/login/page.tsx` | Login with `?redirect=` support, admin fallback |
+| `src/lib/socials.ts` | Social links defaults + localStorage + Supabase sync |
+| `src/lib/pixel.ts` | Facebook Pixel event helper |
+| `src/app/login/page.tsx` | Login with `?redirect=` support, fetches role from profiles table |
 | `src/app/register/page.tsx` | Register with `?redirect=` support |
 | `src/app/checkout/page.tsx` | COD checkout, saves order to Supabase |
 | `src/app/account/page.tsx` | Dashboard with 4 tabs, fetches live order status from Supabase |
@@ -176,6 +228,8 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
 | `src/app/orders/page.tsx` | Order history from state |
 | `src/app/products/[slug]/page.tsx` | Product detail with Buy Now flow |
 | `src/app/profile/page.tsx` | User profile with sidebar links to account tabs |
+| `src/components/layout/footer.tsx` | Footer with brand icons, Supabase-powered social links |
+| `src/components/ui/whatsapp-chat.tsx` | WhatsApp floating button, fetches link from Supabase |
 | `src/components/home/hero-banner.tsx` | Hero carousel — images visible on all screen sizes |
 | `src/components/home/categories.tsx` | Category grid with dynamic product counts |
 | `src/components/layout/header.tsx` | Header — dynamic account link, dynamic category counts |
