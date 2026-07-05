@@ -7,7 +7,7 @@ import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { getSocialLinks, fetchSocialLinksFromDB, saveSocialLinks, type SocialLinks } from "@/lib/socials"
+import { getSocialLinks, fetchSocialLinksFromDB, saveSocialLinks, defaultSocials, type SocialLinks } from "@/lib/socials"
 
 const footerLinks = {
   shop: {
@@ -57,8 +57,14 @@ export function Footer() {
   useEffect(() => {
     fetchSocialLinksFromDB().then((db) => {
       if (db) {
-        setSocials(db)
-        saveSocialLinks(db) // cache locally
+        // Merge DB data with localStorage — non-empty values take priority
+        const merged = { ...db }
+        const local = getSocialLinks()
+        ;(Object.keys(merged) as (keyof SocialLinks)[]).forEach((key) => {
+          if (!merged[key] || merged[key] === "#") merged[key] = local[key] || defaultSocials[key]
+        })
+        setSocials(merged)
+        saveSocialLinks(merged)
       }
     })
   }, [])
