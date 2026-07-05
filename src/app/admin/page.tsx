@@ -222,11 +222,14 @@ export default function AdminDashboard() {
                   variant="premium"
                   className="gap-2"
                   onClick={async () => {
-                    // Save to localStorage (immediate)
-                    saveSocialLinks(socialLinks)
-                    // Sync to Supabase (cross-device)
+                    // Strip leading # from any URL
+                    const clean = Object.fromEntries(
+                      (Object.entries(socialLinks) as [string, string][]).map(([k, v]) => [k, v.replace(/^#+/, "")])
+                    ) as SocialLinks
+                    setSocialLinks(clean)
+                    saveSocialLinks(clean)
                     try {
-                      await saveSocialLinksToDB(socialLinks)
+                      await saveSocialLinksToDB(clean)
                       toast({ title: "Social links saved for all devices!", variant: "success" })
                     } catch (err) {
                       console.error("Failed to sync social links to DB:", err)

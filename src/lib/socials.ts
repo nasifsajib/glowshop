@@ -16,11 +16,19 @@ export const defaultSocials: SocialLinks = {
   tiktok: "",
 }
 
+function sanitize(links: SocialLinks): SocialLinks {
+  const out = { ...links }
+  for (const key of Object.keys(out) as (keyof SocialLinks)[]) {
+    out[key] = out[key].replace(/^#+/, "")
+  }
+  return out
+}
+
 export function getSocialLinks(): SocialLinks {
   if (typeof window === "undefined") return defaultSocials
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) return { ...defaultSocials, ...JSON.parse(saved) }
+    if (saved) return sanitize({ ...defaultSocials, ...JSON.parse(saved) })
   } catch {}
   return defaultSocials
 }
@@ -33,12 +41,12 @@ export async function fetchSocialLinksFromDB(): Promise<SocialLinks | null> {
   try {
     const { data, error } = await supabase.from("social_links").select("*").limit(1).single()
     if (error || !data) return null
-    return {
+    return sanitize({
       whatsapp: data.whatsapp || defaultSocials.whatsapp,
       facebook: data.facebook || defaultSocials.facebook,
       instagram: data.instagram || defaultSocials.instagram,
       tiktok: data.tiktok || defaultSocials.tiktok,
-    }
+    })
   } catch { return null }
 }
 
