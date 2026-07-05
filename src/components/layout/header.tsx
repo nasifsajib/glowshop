@@ -30,7 +30,7 @@ export function Header() {
       {/* Top announcement bar */}
       <div className="hidden sm:block bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border-b">
         <div className="container mx-auto px-4 py-1.5 text-center text-xs text-muted-foreground">
-          <span className="font-medium text-primary">Free shipping</span> on orders over $50 &middot; Use code{" "}
+          <span className="font-medium text-primary">Free shipping</span> on orders over 1,999 BDT &middot; Use code{" "}
           <span className="font-semibold text-foreground">GLOW10</span> for 10% off
         </div>
       </div>

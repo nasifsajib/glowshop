@@ -63,7 +63,7 @@ function AccountContent() {
   }, [state.user, dispatch])
 
   const subtotal = state.cart.reduce((total, item) => total + item.product.price * item.quantity, 0)
-  const shipping = subtotal >= 50 ? 0 : 5.99
+  const shipping = subtotal >= 1999 ? 0 : 99
   const cartTotal = subtotal + shipping
 
   const handleRemove = (id: string, name: string) => {

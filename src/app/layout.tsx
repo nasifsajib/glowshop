@@ -27,7 +27,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "GlowShop - Premium Skincare & Beauty Products",
   description:
-    "Discover premium skincare, makeup, and beauty products at GlowShop. Curated for your glow. Free shipping on orders over $50.",
+    "Discover premium skincare, makeup, and beauty products at GlowShop. Curated for your glow. Free shipping on orders over 1,999 BDT.",
   keywords: "skincare, beauty, makeup, k-beauty, korean skincare, moisturizer, serum",
 }
 

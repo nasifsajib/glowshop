@@ -238,7 +238,7 @@ export default function ProductDetailPage() {
             </span>
             <Separator orientation="vertical" className="h-4" />
             <Truck className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Free shipping over $50</span>
+            <span className="text-sm text-muted-foreground">Free shipping over 1,999 BDT</span>
           </div>
 
           <Separator />

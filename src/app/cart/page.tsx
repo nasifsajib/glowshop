@@ -14,7 +14,7 @@ export default function CartPage() {
   const { state, dispatch } = useApp()
 
   const subtotal = state.cart.reduce((total, item) => total + item.product.price * item.quantity, 0)
-  const shipping = subtotal >= 50 ? 0 : 5.99
+  const shipping = subtotal >= 1999 ? 0 : 99
   const total = subtotal + shipping
 
   const handleRemove = (id: string, name: string) => {
@@ -147,7 +147,7 @@ export default function CartPage() {
               </div>
               {shipping > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Free shipping on orders over $50
+                  Free shipping on orders over 1,999 BDT
                 </p>
               )}
             </div>

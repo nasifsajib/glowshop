@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 
 const coupons = [
   { code: "GLOW10", discount: "10% OFF", desc: "On your first order" },
-  { code: "FREESHIP", discount: "Free Shipping", desc: "On orders over $50" },
+  { code: "FREESHIP", discount: "Free Shipping", desc: "On orders over 1,999 BDT" },
   { code: "B2G1", discount: "Buy 2 Get 1", desc: "On all skincare" },
 ]
 
