@@ -32,7 +32,7 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
 - **Supabase Project URL:** `https://lokchhaitjizdgqfujir.supabase.co`
 - **Supabase Anon Key (publishable):** `sb_publishable_YTd9ZOjsscO7w_66Gyo4KA_kEQ_hOjg`
 - **Admin login:** Uses `profiles` table in Supabase (role column). No hardcoded password.
-  - **PENDING:** Admin user must be created manually in Supabase Dashboard (Auth → Users), then profile set to `role: 'admin'` via SQL Editor.
+  - **Admin user:** `glowshop69@gmail.com` (manually created in Supabase Auth, profile set to `role: 'admin'` via SQL).
   - Old hardcoded fallback (`admin123`) has been removed.
 - **Email confirmation:** DISABLED in Supabase Auth settings (users can sign up and are immediately logged in)
 - **Vercel project:** `glowshop-beige` on `vercel.com/nasifsajibs-projects`
@@ -176,14 +176,14 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
 - **Problem**: `onAuthStateChange` fired `SIGNED_OUT` on page load with stale session, removing `glowshop-admin` from localStorage → admin couldn't restore session.
 - **Fix**: Only clear `glowshop-admin` on explicit logout (not on refresh). Also check `session.user.email === "admin@glowshop.com"` as fallback to set role correctly.
 
-### Secure Admin Auth (Jul 5 — IN PROGRESS)
+### Secure Admin Auth (Jul 5 — DONE)
 - **Problem**: Hardcoded `admin123` in client-side code — anyone could view source and log in.
-- **Fix (partial)**: 
+- **Fix**: 
   - Created `profiles` table linked to `auth.users(id)` with `role` column (`'user'` | `'admin'`)
   - Auto-create profile via trigger on user signup (`role: 'user'`)
   - Login page now fetches profile after Supabase auth to determine role
   - Removed hardcoded `admin123` fallback from login
-- **PENDING**: Admin user must be created manually in Supabase Dashboard, then profile updated to `role: 'admin'` via SQL Editor.
+  - Admin user `glowshop69@gmail.com` created in Supabase Auth, profile set to `role: 'admin'`
 
 ### Footer Social Icons Hidden When Empty (Jul 5)
 - **Problem**: Default URLs were `"#"` — clicking them navigated to current page.
@@ -200,8 +200,7 @@ Deploy is automatic — push to `main` on GitHub, Vercel auto-deploys.
 
 ## Known Issues
 
-1. **Admin setup not complete** — admin user must be created in Supabase Dashboard (Auth → Users) and profile set to `role: 'admin'` via SQL Editor
-2. **No product variants/inventory tracking**
+1. **No product variants/inventory tracking**
 3. **COD only** — no card/online payment
 4. **Images are local** — not uploaded to CDN/storage
 5. **Orders table schema cache** — if `PGRST204` errors occur again, run `NOTIFY pgrst, 'reload schema'` in SQL Editor

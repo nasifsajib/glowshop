@@ -120,11 +120,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-primary" />
-                <span>+1 (555) 123-GLOW</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary" />
-                <span>hello@glowshop.com</span>
+                <span>+8801907105899</span>
               </div>
             </div>
             <div className="flex gap-2 mt-6">
